@@ -1,0 +1,2 @@
+RUNTIME custom
+RUN fun-install apt-get install ruby-full
