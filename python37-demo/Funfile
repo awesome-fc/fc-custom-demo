@@ -1,0 +1,4 @@
+RUNTIME custom
+RUN fun-install pip install flask
+RUN fun-install pip install gunicorn
+

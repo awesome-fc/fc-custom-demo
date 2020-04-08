@@ -28,6 +28,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [F#](#FSharp)
 - [TypeScript](#ts)
 - [PHP74-Swoole](#php74)
+- [Python37](#python37)
 
 <a name="go"></a>
 ## GO
@@ -283,12 +284,71 @@ service php74-swoole-demo deploy success
 #### Invoke Function
 
 ``` bash
+rsong@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun invoke -e "Hello World"
+...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: 2d7d089d-7a41-4d81-a932-01d452ead907
 string(11) "Hello World"
 FC Invoke End RequestId: 2d7d089d-7a41-4d81-a932-01d452ead907
 
 Duration: 1.01 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 32.68 MB
+========= FC invoke Logs end =========
+
+FC Invoke Result:
+Hello World
+```
+
+<a name="python37"></a>
+## Python37
+
+Support single instance multiple concurrency
+
+#### Deploy Function
+
+```bash
+rsong@iZj6c895xh98:~/fc-custom-demo cd python37-demo
+rsong@iZj6c895xh98:~/fc-custom-demo/python37-demo  fun install -v
+using template: template.yml
+start installing function dependencies without docker
+
+building python37-demo/fc-python37
+Funfile exist, Fun will use container to build forcely
+Step 1/3 : FROM registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-custom:build-1.9.4
+ ---> 91c38ebf44f1
+Step 2/3 : RUN fun-install pip install flask
+ ---> Using cache
+ ---> bc3e7d2a77c8
+Step 3/3 : RUN fun-install pip install gunicorn
+ ---> Using cache
+ ---> 119fe14306b6
+sha256:119fe14306b6548f9c4a8642cb214f7352ecb264e806ca8e000a8a6e1f0612ec
+Successfully built 119fe14306b6
+Successfully tagged fun-cache-9cf56df5-03b2-4119-9dab-69178cf590ff:latest
+copying function artifact to /Users/songluo/tmp/fc-custom-demo/python37-demo
+
+Install Success
+
+rsong@iZj6c895xh98:~/fc-custom-demo/python37-demo fun deploy -y
+···
+Waiting for service python37-demo to be deployed...
+        Waiting for function fc-python37 to be deployed...
+                Waiting for packaging function fc-python37 code...
+                The function fc-python37 has been packaged. A total of 369 files were compressed and the final size was 1.5 MB
+        function fc-python37 deploy success
+service python37-demo deploy success
+```
+
+#### Invoke Function
+
+``` bash
+rsong@iZj6c895xh98:~/fc-custom-demo/python37-demo   fun invoke -e "Hello World"
+...
+========= FC invoke Logs begin =========
+FC Invoke Start RequestId: 3b34c887-e0d1-4015-afbd-63a387f6044c
+b'Hello World'
+FC Invoke End RequestId: 3b34c887-e0d1-4015-afbd-63a387f6044c
+
+Duration: 3.17 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 54.58 MB
 ========= FC invoke Logs end =========
 
 FC Invoke Result:
