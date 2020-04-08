@@ -27,6 +27,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [Powershell](#powershell)
 - [F#](#FSharp)
 - [TypeScript](#ts)
+- [PHP74-Swoole](#php74)
 
 <a name="go"></a>
 ## GO
@@ -254,6 +255,40 @@ Hello World
 FC Invoke End RequestId: 7ab0a86a-be32-4086-ac17-3ce0797cda41
 
 Duration: 13.48 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 162.38 MB
+========= FC invoke Logs end =========
+
+FC Invoke Result:
+Hello World
+```
+
+<a name="php74"></a>
+## PHP74-Swoole
+
+Support single instance multiple concurrency
+
+#### Deploy Function
+
+```bash
+rsong@iZj6c895xh98:~/fc-custom-demo cd php74-swoole-demo
+rsong@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun deploy -y
+···
+Waiting for service php74-swoole-demo to be deployed...
+        Waiting for function fc-php74-swoole to be deployed...
+                Waiting for packaging function fc-php74-swoole code...
+                The function fc-php74-swoole has been packaged. A total of 2 files were compressed and the final size was 785 B
+        function fc-php74-swoole deploy success
+service php74-swoole-demo deploy success
+```
+
+#### Invoke Function
+
+``` bash
+========= FC invoke Logs begin =========
+FC Invoke Start RequestId: 2d7d089d-7a41-4d81-a932-01d452ead907
+string(11) "Hello World"
+FC Invoke End RequestId: 2d7d089d-7a41-4d81-a932-01d452ead907
+
+Duration: 1.01 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 32.68 MB
 ========= FC invoke Logs end =========
 
 FC Invoke Result:
