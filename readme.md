@@ -6,7 +6,7 @@ The following examples use the Fun tool for debugging and deploying functions. F
 ``` bash
 npm install @alicloud/fun -g
 ```
-> You need to install nodejs 8.x or above
+> You need to install nodejs 8.6.0 or above
 
 Before using, we need to configure first, by typing fun config, and then configure the Account ID, Access Key ID, Secret Access Key, and Default Region Name in turn according to the prompt:
 
