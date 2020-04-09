@@ -1,7 +1,7 @@
 import json
 
-filenames = ['/tmp/FSharpDemo/appsettings.json',
-             '/tmp/FSharpDemo/appsettings.Development.json']
+filenames = ['./appsettings.json',
+             './appsettings.Development.json']
 
 d = {}
 for filename in filenames:
