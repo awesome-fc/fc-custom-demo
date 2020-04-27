@@ -1,1 +1,0 @@
-docker build -t fc-go-runtime  -f Dockerfile . 

@@ -29,6 +29,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [TypeScript](#ts)
 - [PHP74-Swoole](#php74)
 - [Python37](#python37)
+- [CPP](#cpp)
 
 <a name="go"></a>
 ## GO
@@ -36,8 +37,8 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 #### Deploy Function
 
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd go-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/go-demo  make deploy
+sam@iZj6c895xh98:~/fc-custom-demo cd go-demo
+sam@iZj6c895xh98:~/fc-custom-demo/go-demo  make deploy
 docker build -t fc-go-runtime  -f build-image/Dockerfile build-image
 Sending build context to Docker daemon  3.072kB
 Step 1/5 : FROM golang:1.12.16-stretch
@@ -63,7 +64,7 @@ service go_demo deploy success
 
 #### Invoke Function
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/go-demo  fun invoke -e "Hello World"
+sam@iZj6c895xh98:~/fc-custom-demo/go-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: 4c1451b2-f29b-4554-87e5-126f3bc11fcf
@@ -83,8 +84,8 @@ Hello World
 #### Deploy Function
 
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd ruby-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun deploy -y
+sam@iZj6c895xh98:~/fc-custom-demo cd ruby-demo
+sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun deploy -y
 ...
 Waiting for service ruby-demo to be deployed...
         Waiting for function fc-ruby to be deployed...
@@ -96,7 +97,7 @@ service ruby-demo deploy success
 
 #### Invoke Function
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun invoke -e "Hello World"
+sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: a9c4dc8a-4b5b-48e0-9a3f-70310531ae61
@@ -118,8 +119,8 @@ Hello World
 PowerShell adopts the form of third-party packaging. The code package will exceed 50M. The Fun tool installs the third-party package. At the same time, the corresponding function-dependent package can be automatically placed on the NAS. Only the first deployment needs to execute `fun install -v` and` fun nas sync`, if you just want to update the powershell script later, you only need the `fun deploy -y` update function.
  
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd powershell-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun install -v 
+sam@iZj6c895xh98:~/fc-custom-demo cd powershell-demo
+sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun install -v 
 start installing function dependencies without docker
 
 building powershell-demo/fc-powershell
@@ -135,7 +136,7 @@ copying function artifact to /Users/songluo/gitpro/fc-custom-demo/powershell-dem
 copy from container /mnt/auto/. to localNasDir
 
 Install Success
-rsong@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun nas sync
+sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun nas sync
 fun nas sync
 using template: template.yml
 starting upload /Users/songluo/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo to nas://powershell-demo/mnt/auto/
@@ -152,7 +153,7 @@ zipping /Users/songluo/gitpro/fc-custom-demo/powershell-demo/.fun/root
 unzipping file
 ✔ unzip done
 ✔ upload completed!
-rsong@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun deploy -y
+sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun deploy -y
 ...
         Checking if nas directories /powershell-demo exists, if not, it will be created automatically
         Checking nas directories done ["/powershell-demo"]
@@ -167,7 +168,7 @@ service powershell-demo deploy success
 #### Invoke Function
 
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun invoke -e "Hello World"
+sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: cd30369e-7dfa-439c-a68d-7fe16d5a7e05
@@ -187,8 +188,8 @@ Hello World
 #### Deploy Function
 
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd FSharp-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/FSharp-demo  make deploy
+sam@iZj6c895xh98:~/fc-custom-demo cd FSharp-demo
+sam@iZj6c895xh98:~/fc-custom-demo/FSharp-demo  make deploy
 make deploy
 docker run -it -v $(pwd):/tmp mcr.microsoft.com/dotnet/core/sdk:3.1 bash -c "cd /tmp/FSharpDemo && dotnet publish -r linux-x64 -c Release --self-contained true && cd /tmp/FSharpDemo/bin/Release/netcoreapp3.1/linux-x64/publish && mv FSharpDemo bootstrap && chmod +x bootstrap"
 Microsoft (R) Build Engine version 16.5.0+d4cbfca49 for .NET Core
@@ -225,7 +226,7 @@ custom domain my_domain deploy success
 In this example, the ASP.NETCore project of F # is migrated to FC in one click, and you can directly use the HTTP client tool such as a browser or curl to invoke the function. directly curl to access the temporary domain name `16225220-1986114430573743.test.functioncompute.com` which is printed on the terminal in the previous step.
 
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/FSharp-demo curl 16225220-1986114430573743.test.functioncompute.com/weatherforecast 
+sam@iZj6c895xh98:~/fc-custom-demo/FSharp-demo curl 16225220-1986114430573743.test.functioncompute.com/weatherforecast 
 [{"date":"2020-04-07T07:46:29.4315198+00:00","temperatureC":49,"summary":"Hot","temperatureF":120},{"date":"2020-04-08T07:46:29.431527+00:00","temperatureC":11,"summary":"Bracing","temperatureF":51},{"date":"2020-04-09T07:46:29.4315276+00:00","temperatureC":45,"summary":"Bracing","temperatureF":112},{"date":"2020-04-10T07:46:29.431528+00:00","temperatureC":13,"summary":"Chilly","temperatureF":55},{"date":"2020-04-11T07:46:29.4315284+00:00","temperatureC":-8,"summary":"Mild","temperatureF":18}]  
 ```
 
@@ -235,8 +236,8 @@ rsong@iZj6c895xh98:~/fc-custom-demo/FSharp-demo curl 16225220-1986114430573743.t
 #### Deploy Function
 
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd ts-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/ts-demo  fun deploy -y
+sam@iZj6c895xh98:~/fc-custom-demo cd ts-demo
+sam@iZj6c895xh98:~/fc-custom-demo/ts-demo  fun deploy -y
 ...
 Waiting for service ts-demo to be deployed...
         Waiting for function fc-ts to be deployed...
@@ -248,7 +249,7 @@ service ts-demo deploy success
 
 #### Invoke Function
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/ts-demo  fun invoke -e "Hello World"
+sam@iZj6c895xh98:~/fc-custom-demo/ts-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: 7ab0a86a-be32-4086-ac17-3ce0797cda41
@@ -270,8 +271,8 @@ Support single instance multiple concurrency
 #### Deploy Function
 
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd php74-swoole-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun deploy -y
+sam@iZj6c895xh98:~/fc-custom-demo cd php74-swoole-demo
+sam@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun deploy -y
 ···
 Waiting for service php74-swoole-demo to be deployed...
         Waiting for function fc-php74-swoole to be deployed...
@@ -284,7 +285,7 @@ service php74-swoole-demo deploy success
 #### Invoke Function
 
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun invoke -e "Hello World"
+sam@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: 2d7d089d-7a41-4d81-a932-01d452ead907
@@ -306,8 +307,8 @@ Support single instance multiple concurrency
 #### Deploy Function
 
 ```bash
-rsong@iZj6c895xh98:~/fc-custom-demo cd python37-demo
-rsong@iZj6c895xh98:~/fc-custom-demo/python37-demo  fun install -v
+sam@iZj6c895xh98:~/fc-custom-demo cd python37-demo
+sam@iZj6c895xh98:~/fc-custom-demo/python37-demo  fun install -v
 using template: template.yml
 start installing function dependencies without docker
 
@@ -328,7 +329,7 @@ copying function artifact to /Users/songluo/tmp/fc-custom-demo/python37-demo
 
 Install Success
 
-rsong@iZj6c895xh98:~/fc-custom-demo/python37-demo fun deploy -y
+sam@iZj6c895xh98:~/fc-custom-demo/python37-demo fun deploy -y
 ···
 Waiting for service python37-demo to be deployed...
         Waiting for function fc-python37 to be deployed...
@@ -341,7 +342,7 @@ service python37-demo deploy success
 #### Invoke Function
 
 ``` bash
-rsong@iZj6c895xh98:~/fc-custom-demo/python37-demo   fun invoke -e "Hello World"
+sam@iZj6c895xh98:~/fc-custom-demo/python37-demo   fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: 3b34c887-e0d1-4015-afbd-63a387f6044c
@@ -352,5 +353,85 @@ Duration: 3.17 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used
 ========= FC invoke Logs end =========
 
 FC Invoke Result:
+Hello World
+```
+
+<a name="cpp"></a>
+## CPP
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd cpp-demo
+sam@iZj6c895xh98:~/fc-custom-demo/cpp-demo  make deploy
+docker build -t fc-cpp-runtime  -f build-image/Dockerfile build-image
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM aliyunfc/runtime-custom:base
+ ---> 5bbdcf6377bd
+...
+Step 3/3 : RUN apt-get install -y cmake
+ ---> Using cache
+ ---> a244cd26cec2
+Successfully built a244cd26cec2
+Successfully tagged fc-cpp-runtime:latest
+docker run --rm -it -v $(pwd):/tmp fc-cpp-runtime bash -c "cd /tmp && ./build.sh"
+-- The C compiler identification is GNU 6.3.0
+-- The CXX compiler identification is GNU 6.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+...
+Scanning dependencies of target cppruntime
+[ 33%] Building CXX object CMakeFiles/cppruntime.dir/src/handler.cpp.o
+[ 66%] Building CXX object CMakeFiles/cppruntime.dir/src/logging.cpp.o
+[100%] Linking CXX shared library /tmp/bin/libcppruntime.so
+...
+-- Build files have been written to: /tmp/sample/release
+...
+[100%] Built target bootstrap
+fun deploy -y
+
+Waiting for service cpp_demo to be deployed...
+        Waiting for function fc_cpp_event to be deployed...
+                Waiting for packaging function fc_cpp_event code...
+                The function fc_cpp_event has been packaged. A total of 2 files were compressed and the final size was 446.51 KB
+        function fc_cpp_event deploy success
+        Waiting for function fc_cpp_http to be deployed...
+                Waiting for packaging function fc_cpp_http code...
+                The function fc_cpp_http has been packaged. A total of 2 files were compressed and the final size was 446.51 KB
+                Waiting for HTTP trigger http_t to be deployed...
+                triggerName: http_t
+                methods: [ 'GET', 'POST', 'PUT', 'DELETE' ]
+                url: https://123456789.cn-hangzhou.fc.aliyuncs.com/2016-08-15/proxy/cpp_demo/fc_cpp_http/
+                Http Trigger will forcefully add a 'Content-Disposition: attachment' field to the response header, which cannot be overwritten 
+                and will cause the response to be downloaded as an attachment in the browser. This issue can be avoided by using CustomDomain.
+
+                trigger http_t deploy success
+        function fc_cpp_http deploy success
+service cpp_demo deploy success
+
+Detect 'DomainName:Auto' of custom domain 'my_domain'
+Fun will reuse the temporary domain http://17904911-123456789.test.functioncompute.com, expired at 2020-05-06 20:41:51, limited by 1000 per day.
+
+Waiting for custom domain my_domain to be deployed...
+custom domain my_domain deploy success
+```
+
+#### Invoke Function
+``` bash
+sam@iZj6c895xh98:~/fc-custom-demo/cpp-demo  fun invoke cpp_demo/fc_cpp_event -e "Hello World"
+...
+========= FC invoke Logs begin =========
+/invoke is called.
+FC Invoke Start RequestId: bf282a87-0f0b-4953-b159-a31792bad22a
+2020-04-27T08:01:08 bf282a87-0f0b-4953-b159-a31792bad22a [INFO] handling invoke
+FC Invoke End RequestId: bf282a87-0f0b-4953-b159-a31792bad22a
+
+Duration: 9.11 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 4.25MB
+========= FC invoke Logs end =========
+
+FC Invoke Result:
+Hello World
+
+sam@iZj6c895xh98:~/fc-custom-demo/cpp-demo  curl http://17904911-123456789.test.functioncompute.com -d "Hello World"
 Hello World
 ```

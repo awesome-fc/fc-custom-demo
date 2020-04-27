@@ -11,3 +11,5 @@ FSharp-demo/.vs
 FSharp-demo/NuGetScratch
 FSharp-demo/.NETCoreApp,Version=v3.1.AssemblyAttributes.fs
 FSharp-demo/.dotnet
+cpp-demo/bin
+cpp-demo/sample/release
