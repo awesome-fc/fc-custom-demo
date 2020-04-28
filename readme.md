@@ -85,6 +85,37 @@ Hello World
 
 ```bash
 sam@iZj6c895xh98:~/fc-custom-demo cd ruby-demo
+sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun build
+using template: template.yml
+start building function dependencies without docker
+
+building ruby-demo/fc-ruby
+Funfile exist, Fun will use container to build forcely
+Step 1/2 : FROM registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-custom:build-1.9.5
+ ---> d9dc9b425320
+Step 2/2 : RUN fun-install apt-get install ruby-full
+ ---> Using cache
+ ---> fdba2ab47215
+sha256:fdba2ab47215ebe5c0e3b80dfbfe84bbf6a7f4ad58c8b99afc5f524dc1431dac
+Successfully built fdba2ab47215
+Successfully tagged fun-cache-5476ebad-fa73-44a9-a8dc-7b5fa943f4c0:latest
+copying function artifact to /Users/songluo/gitpro/fc-custom-demo/ruby-demo/.fun/build/artifacts/ruby-demo/fc-ruby
+
+build function using image: fun-cache-5476ebad-fa73-44a9-a8dc-7b5fa943f4c0
+running task: flow DefaultTaskFlow
+running task: CopySource
+
+Build Success
+
+Built artifacts: .fun/build/artifacts
+Built template: .fun/build/artifacts/template.yml
+
+Tips for next step
+======================
+* Invoke Event Function: fun local invoke
+* Invoke Http Function: fun local start
+* Deploy Resources: fun deploy
+
 sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun deploy -y
 ...
 Waiting for service ruby-demo to be deployed...
