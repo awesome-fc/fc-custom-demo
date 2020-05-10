@@ -30,6 +30,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [PHP74-Swoole](#php74)
 - [Python37](#python37)
 - [CPP](#cpp)
+- [Lua](#lua)
 
 <a name="go"></a>
 ## GO
@@ -433,5 +434,38 @@ FC Invoke Result:
 Hello World
 
 sam@iZj6c895xh98:~/fc-custom-demo/cpp-demo  curl http://17904911-123456789.test.functioncompute.com -d "Hello World"
+Hello World
+```
+
+<a name="lua"></a>
+## Lua
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd lua-demo
+sam@iZj6c895xh98:~/fc-custom-demo/lua-demo  fun deploy -y
+...
+Waiting for service lua-demo to be deployed...
+        Waiting for function fc-lua to be deployed...
+                Waiting for packaging function fc-lua code...
+                The function fc-lua has been packaged. A total of 7 files were compressed and the final size was 10.62 MB
+        function fc-lua deploy success
+service lua-demo deploy success
+```
+
+#### Invoke Function
+``` bash
+sam@iZj6c895xh98:~/fc-custom-demo/lua-demo  fun invoke -e "Hello World"
+...
+========= FC invoke Logs begin =========
+FC Invoke Start RequestId: dcc2ff81-2318-4a89-abae-c181ede22b79, client: 21.0.3.254, server: , request: "POST /invoke HTTP/1.1", host: "21.0.3.1:9000"
+2020/05/10 13:16:21 [notice] 7#7: *2 [lua] main.lua:17: FC Invoke End RequestId: dcc2ff81-2318-4a89-abae-c181ede22b79, client: 21.0.3.254, server: , request: "POST /invoke HTTP/1.1", host: "21.0.3.1:9000"
+21.0.3.1 21.0.3.254 0.000 [10/May/2020:13:16:21 +0000] "POST /invoke HTTP/1.1" 200 22 "-" "Go-http-client/1.1" "-" dcc2ff81-2318-4a89-abae-c181ede22b79 
+
+Duration: 3.42 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 4.66 MB
+========= FC invoke Logs end =========
+
+FC Invoke Result:
 Hello World
 ```
