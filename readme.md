@@ -1,11 +1,13 @@
 ## Introduction
 
 #### Install and configure the latest version of funcraft
+
 The following examples use the Fun tool for debugging and deploying functions. First install and configure the latest version of funcraft
 
-``` bash
+```bash
 npm install @alicloud/fun -g
 ```
+
 > You need to install nodejs 8.6.0 or above
 
 Before using, we need to configure first, by typing fun config, and then configure the Account ID, Access Key ID, Secret Access Key, and Default Region Name in turn according to the prompt:
@@ -14,7 +16,7 @@ Before using, we need to configure first, by typing fun config, and then configu
 
 #### Cloning sample project
 
-``` bash
+```bash
 git clone https://github.com/awesome-fc/fc-custom-demo
 ```
 
@@ -31,8 +33,10 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [Python37](#python37)
 - [CPP](#cpp)
 - [Lua](#lua)
+- [Dart](#dart)
 
 <a name="go"></a>
+
 ## GO
 
 #### Deploy Function
@@ -64,7 +68,8 @@ service go_demo deploy success
 ```
 
 #### Invoke Function
-``` bash
+
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/go-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -80,6 +85,7 @@ Hello World
 ```
 
 <a name="ruby"></a>
+
 ## Ruby
 
 #### Deploy Function
@@ -97,7 +103,8 @@ service ruby-demo deploy success
 ```
 
 #### Invoke Function
-``` bash
+
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -113,15 +120,16 @@ Hello World
 ```
 
 <a name="powershell"></a>
+
 ## Powershell
 
 #### Deploy Function
 
 PowerShell adopts the form of third-party packaging. The code package will exceed 50M. The Fun tool installs the third-party package. At the same time, the corresponding function-dependent package can be automatically placed on the NAS. Only the first deployment needs to execute `fun install -v` and` fun nas sync`, if you just want to update the powershell script later, you only need the `fun deploy -y` update function.
- 
+
 ```bash
 sam@iZj6c895xh98:~/fc-custom-demo cd powershell-demo
-sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun install -v 
+sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun install -v
 start installing function dependencies without docker
 
 building powershell-demo/fc-powershell
@@ -168,7 +176,7 @@ service powershell-demo deploy success
 
 #### Invoke Function
 
-``` bash
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/ruby-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -184,6 +192,7 @@ Hello World
 ```
 
 <a name="FSharp"></a>
+
 ## FSharp
 
 #### Deploy Function
@@ -209,7 +218,7 @@ Waiting for service fsharp_demo to be deployed...
                 triggerName: http_t
                 methods: [ 'GET', 'POST', 'PUT', 'DELETE' ]
                 url: https://1986114430573743.cn-hangzhou.fc.aliyuncs.com/2016-08-15/proxy/fsharp_demo/fc_fsharp/
-                Http Trigger will forcefully add a 'Content-Disposition: attachment' field to the response header, which cannot be overwritten 
+                Http Trigger will forcefully add a 'Content-Disposition: attachment' field to the response header, which cannot be overwritten
                 and will cause the response to be downloaded as an attachment in the browser. This issue can be avoided by using CustomDomain.
 
                 trigger http_t deploy success
@@ -224,14 +233,16 @@ custom domain my_domain deploy success
 ```
 
 #### Invoke Function
+
 In this example, the ASP.NETCore project of F # is migrated to FC in one click, and you can directly use the HTTP client tool such as a browser or curl to invoke the function. directly curl to access the temporary domain name `16225220-1986114430573743.test.functioncompute.com` which is printed on the terminal in the previous step.
 
-``` bash
-sam@iZj6c895xh98:~/fc-custom-demo/FSharp-demo curl 16225220-1986114430573743.test.functioncompute.com/weatherforecast 
-[{"date":"2020-04-07T07:46:29.4315198+00:00","temperatureC":49,"summary":"Hot","temperatureF":120},{"date":"2020-04-08T07:46:29.431527+00:00","temperatureC":11,"summary":"Bracing","temperatureF":51},{"date":"2020-04-09T07:46:29.4315276+00:00","temperatureC":45,"summary":"Bracing","temperatureF":112},{"date":"2020-04-10T07:46:29.431528+00:00","temperatureC":13,"summary":"Chilly","temperatureF":55},{"date":"2020-04-11T07:46:29.4315284+00:00","temperatureC":-8,"summary":"Mild","temperatureF":18}]  
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo/FSharp-demo curl 16225220-1986114430573743.test.functioncompute.com/weatherforecast
+[{"date":"2020-04-07T07:46:29.4315198+00:00","temperatureC":49,"summary":"Hot","temperatureF":120},{"date":"2020-04-08T07:46:29.431527+00:00","temperatureC":11,"summary":"Bracing","temperatureF":51},{"date":"2020-04-09T07:46:29.4315276+00:00","temperatureC":45,"summary":"Bracing","temperatureF":112},{"date":"2020-04-10T07:46:29.431528+00:00","temperatureC":13,"summary":"Chilly","temperatureF":55},{"date":"2020-04-11T07:46:29.4315284+00:00","temperatureC":-8,"summary":"Mild","temperatureF":18}]
 ```
 
 <a name="ts"></a>
+
 ## TypeScript
 
 #### Deploy Function
@@ -249,7 +260,8 @@ service ts-demo deploy success
 ```
 
 #### Invoke Function
-``` bash
+
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/ts-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -265,6 +277,7 @@ Hello World
 ```
 
 <a name="php74"></a>
+
 ## PHP74-Swoole
 
 Support single instance multiple concurrency
@@ -285,7 +298,7 @@ service php74-swoole-demo deploy success
 
 #### Invoke Function
 
-``` bash
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/php74-swoole-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -301,6 +314,7 @@ Hello World
 ```
 
 <a name="python37"></a>
+
 ## Python37
 
 Support single instance multiple concurrency
@@ -342,7 +356,7 @@ service python37-demo deploy success
 
 #### Invoke Function
 
-``` bash
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/python37-demo   fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -358,6 +372,7 @@ Hello World
 ```
 
 <a name="cpp"></a>
+
 ## CPP
 
 #### Deploy Function
@@ -403,7 +418,7 @@ Waiting for service cpp_demo to be deployed...
                 triggerName: http_t
                 methods: [ 'GET', 'POST', 'PUT', 'DELETE' ]
                 url: https://123456789.cn-hangzhou.fc.aliyuncs.com/2016-08-15/proxy/cpp_demo/fc_cpp_http/
-                Http Trigger will forcefully add a 'Content-Disposition: attachment' field to the response header, which cannot be overwritten 
+                Http Trigger will forcefully add a 'Content-Disposition: attachment' field to the response header, which cannot be overwritten
                 and will cause the response to be downloaded as an attachment in the browser. This issue can be avoided by using CustomDomain.
 
                 trigger http_t deploy success
@@ -418,7 +433,8 @@ custom domain my_domain deploy success
 ```
 
 #### Invoke Function
-``` bash
+
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/cpp-demo  fun invoke cpp_demo/fc_cpp_event -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
@@ -438,6 +454,7 @@ Hello World
 ```
 
 <a name="lua"></a>
+
 ## Lua
 
 #### Deploy Function
@@ -455,15 +472,55 @@ service lua-demo deploy success
 ```
 
 #### Invoke Function
-``` bash
+
+```bash
 sam@iZj6c895xh98:~/fc-custom-demo/lua-demo  fun invoke -e "Hello World"
 ...
 ========= FC invoke Logs begin =========
 FC Invoke Start RequestId: dcc2ff81-2318-4a89-abae-c181ede22b79, client: 21.0.3.254, server: , request: "POST /invoke HTTP/1.1", host: "21.0.3.1:9000"
 2020/05/10 13:16:21 [notice] 7#7: *2 [lua] main.lua:17: FC Invoke End RequestId: dcc2ff81-2318-4a89-abae-c181ede22b79, client: 21.0.3.254, server: , request: "POST /invoke HTTP/1.1", host: "21.0.3.1:9000"
-21.0.3.1 21.0.3.254 0.000 [10/May/2020:13:16:21 +0000] "POST /invoke HTTP/1.1" 200 22 "-" "Go-http-client/1.1" "-" dcc2ff81-2318-4a89-abae-c181ede22b79 
+21.0.3.1 21.0.3.254 0.000 [10/May/2020:13:16:21 +0000] "POST /invoke HTTP/1.1" 200 22 "-" "Go-http-client/1.1" "-" dcc2ff81-2318-4a89-abae-c181ede22b79
 
 Duration: 3.42 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used: 4.66 MB
+========= FC invoke Logs end =========
+
+FC Invoke Result:
+Hello World
+```
+
+<a name="dart"></a>
+
+## Dart
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd dart-demo
+sam@iZj6c895xh98:~/fc-custom-demo/dart-demo  make deploy
+docker run --rm -it -v $(pwd):/tmp google/dart:2.8.4 bash -c "export PUB_HOSTED_URL=https://pub.flutter-io.cn && cd tmp/code && dart2native index.dart && mv index.exe bootstrap"
+Generated: /tmp/code/index.exe
+chmod +x code/bootstrap
+fun deploy -y
+...
+Waiting for service dart-demo to be deployed...
+        Waiting for function dart-func to be deployed...
+                Waiting for packaging function dart-func code...
+                The function dart-func has been packaged. A total of 2 files were compressed and the final size was 2.57 MB
+        function dart-func deploy success
+service dart-demo deploy success
+```
+
+#### Invoke Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo/dart-demo  fun invoke
+...
+========= FC invoke Logs begin =========
+FC Invoke Start RequestId: e3c07bfe-7952-4b8e-b096-ac294b1cb595
+hello world
+FC Invoke End RequestId: e3c07bfe-7952-4b8e-b096-ac294b1cb595
+
+Duration: 1.31 ms, Billed Duration: 100 ms, Memory Size: 1024 MB, Max Memory Used: 21.81 MB
 ========= FC invoke Logs end =========
 
 FC Invoke Result:
