@@ -1,2 +1,2 @@
 #!/bin/bash
-gunicorn -w  1  --threads 10  -b 0.0.0.0:9000 server:app
+gunicorn -w  1  --threads 10  -b 0.0.0.0:9000 --keep-alive 900 server:app
