@@ -27,7 +27,7 @@ $http->on("request", function ($request, $response) {
     # do your things
     var_dump($request->rawContent());
 
-    $response->header("Content-Type", "text/plain");
+    $response->header("Content-Type", "application/octet-stream");
     $response->end($request->rawContent());
     echo FC_LOG_TAIL_END_PREFIX . $rid . PHP_EOL;
 });
