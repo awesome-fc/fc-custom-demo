@@ -10,5 +10,7 @@ Resources:
       Properties:
         Handler: index.handler
         Runtime: custom
-        MemorySize: 512
+        MemorySize: 1024
+        Timeout: 30
         CodeUri: './'
+        InstanceConcurrency: 30
