@@ -7,7 +7,7 @@ define('FC_LOG_TAIL_END_PREFIX', 'FC Invoke End RequestId: '); // End of log tai
 $http = new swoole_http_server("0.0.0.0", 9000);
 
 $options = [
-    'worker_num' => 2,
+    'worker_num' => 4,
 ];
 
 $http->set($options);
@@ -22,9 +22,9 @@ $http->on('shutdown', function ($server) {
 
 $http->on("request", function ($request, $response) {
     $rid = $request->header["x-fc-request-id"];
-	echo FC_LOG_TAIL_START_PREFIX . $rid . PHP_EOL;
-	
-	# do your things
+    echo FC_LOG_TAIL_START_PREFIX . $rid . PHP_EOL;
+
+    # do your things
     var_dump($request->rawContent());
 
     $response->header("Content-Type", "text/plain");

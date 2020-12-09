@@ -10,7 +10,8 @@ Resources:
       Properties:
         Handler: server.handler
         Runtime: custom
-        MemorySize: 512
+        MemorySize: 1024
+        Timeout: 30
         CodeUri: './'
-        InstanceConcurrency: 2
+        InstanceConcurrency: 10
 
