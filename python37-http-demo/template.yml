@@ -1,0 +1,33 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  python37-demo:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: 'helloworld'
+      # LogConfig: Auto
+    fc-python37-http:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Handler: index.handler
+        Runtime: custom
+        MemorySize: 1024
+        Timeout: 30
+        CodeUri: './'
+        InstanceConcurrency: 30
+      Events:
+        http_t:
+          Type: HTTP
+          Properties:
+            AuthType: ANONYMOUS
+            Methods: ['GET', 'POST']
+  my_domain:
+    Type: 'Aliyun::Serverless::CustomDomain'
+    Properties:
+      DomainName: Auto
+      Protocol: HTTP
+      RouteConfig:
+        Routes:
+          '/*':
+            ServiceName: python37-demo
+            FunctionName: fc-python37-http

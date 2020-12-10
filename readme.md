@@ -31,6 +31,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [TypeScript](#ts)
 - [PHP74-Swoole](#php74)
 - [Python37](#python37)
+- [Python37-HTTP](#python37-http)
 - [CPP](#cpp)
 - [Lua](#lua)
 - [Dart](#dart)
@@ -142,23 +143,23 @@ Step 7/7 : RUN fun-install apt-get install powershell
 sha256:7c6476a3a4496bbf3da83bfb8966acc90fa94f4f8baccd248cd79c18c4fae409
 Successfully built 7c6476a3a449
 Successfully tagged fun-cache-965bbabb-ab6f-44e7-9910-7dd1df1d3c3e:latest
-copying function artifact to /Users/songluo/gitpro/fc-custom-demo/powershell-demo
+copying function artifact to /Users/sam/gitpro/fc-custom-demo/powershell-demo
 copy from container /mnt/auto/. to localNasDir
 
 Install Success
 sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun nas sync
 fun nas sync
 using template: template.yml
-starting upload /Users/songluo/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo to nas://powershell-demo/mnt/auto/
+starting upload /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo to nas://powershell-demo/mnt/auto/
 
 start fun nas init...
 ...
 Create local NAS directory of service powershell-demo:
-        /Users/songluo/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo
-        /Users/songluo/gitpro/fc-custom-demo/powershell-demo/.fun/root
+        /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo
+        /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/root
 fun nas init Success
 ...
-zipping /Users/songluo/gitpro/fc-custom-demo/powershell-demo/.fun/root
+zipping /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/root
 ✔ upload done
 unzipping file
 ✔ unzip done
@@ -341,7 +342,7 @@ Step 3/3 : RUN fun-install pip install gunicorn
 sha256:119fe14306b6548f9c4a8642cb214f7352ecb264e806ca8e000a8a6e1f0612ec
 Successfully built 119fe14306b6
 Successfully tagged fun-cache-9cf56df5-03b2-4119-9dab-69178cf590ff:latest
-copying function artifact to /Users/songluo/tmp/fc-custom-demo/python37-demo
+copying function artifact to /Users/sam/tmp/fc-custom-demo/python37-demo
 
 Install Success
 
@@ -370,6 +371,83 @@ Duration: 3.17 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used
 
 FC Invoke Result:
 Hello World
+```
+
+<a name="python37-http"></a>
+
+## Python37-HTTP
+
+Support single instance multiple concurrency
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd python37-http-demo
+sam@iZj6c895xh98:~/fc-custom-demo/python37-http-demo  fun install -v
+using template: template.yml
+start installing function dependencies without docker
+
+building python37-demo/fc-python37-http
+Funfile exist, Fun will use container to build forcely
+Step 1/3 : FROM registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-custom:build-1.9.9
+ ---> 2479a0c4aab6
+Step 2/3 : RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install flask
+ ---> Using cache
+ ---> 6183f1188726
+Step 3/3 : RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install gunicorn
+ ---> Using cache
+ ---> 181ddb1702f0
+sha256:181ddb1702f01b303676d8736d2c09f4cafe02c560fc54c6f6b780ee43d6346b
+Successfully built 181ddb1702f0
+Successfully tagged fun-cache-44a38469-67eb-4c2e-9784-66080b5cf8c5:latest
+copying function artifact to /Users/sam/gitpro/fc-custom-demo/python37-http-demo
+
+Install Success
+
+sam@iZj6c895xh98:~/fc-custom-demo/python37-http-demo  fun deploy -y
+···
+Waiting for service python37-demo to be deployed...
+        Waiting for function fc-python37-http to be deployed...
+                Waiting for packaging function fc-python37-http code...
+                The function fc-python37-http has been packaged. A total of 368 files were compressed and the final size was 1.49 MB
+                Waiting for HTTP trigger http_t to be deployed...
+                triggerName: http_t
+                methods: [ 'GET', 'POST' ]
+                trigger http_t deploy success
+        function fc-python37-http deploy success
+service python37-demo deploy success
+
+Detect 'DomainName:Auto' of custom domain 'my_domain'
+Fun will reuse the temporary domain http://37584684-123456789.test.functioncompute.com, expired at 2020-12-20 15:18:04, limited by 1000 per day.
+
+Waiting for custom domain my_domain to be deployed...
+custom domain my_domain deploy success
+```
+
+#### Invoke Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo/python37-demo  curl -v http://37584684-123456789.test.functioncompute.com
+...
+* Connected to 37584684-1186202104331798.test.functioncompute.com (47.111.48.14) port 80 (#0)
+> GET / HTTP/1.1
+> Host: 37584684-1186202104331798.test.functioncompute.com
+> User-Agent: curl/7.64.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Access-Control-Expose-Headers: Date,x-fc-request-id,x-fc-error-type,x-fc-code-checksum,x-fc-invocation-duration,x-fc-max-memory-usage,x-fc-log-result,x-fc-invocation-code-version
+< Content-Length: 12
+< Content-Type: text/html; charset=utf-8
+< X-Fc-Code-Checksum: 6465955828983873790
+< X-Fc-Invocation-Duration: 3
+< X-Fc-Invocation-Service-Version: LATEST
+< X-Fc-Max-Memory-Usage: 85.20
+< X-Fc-Request-Id: 1a26ecd3-3a6b-4b1c-9c33-e2eb0d71c7ec
+< Date: Thu, 10 Dec 2020 07:23:21 GMT
+<
+* Connection #0 to host 37584684-1186202104331798.test.functioncompute.com left intact
+Hello World!* Closing connection 0
 ```
 
 <a name="cpp"></a>
