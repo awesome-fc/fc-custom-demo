@@ -5,9 +5,7 @@ Resources:
     Type: 'Aliyun::Serverless::Service'
     Properties:
       Description: 'helloworld'
-      # LogConfig:
-      #   Project: your-logproject
-      #   Logstore: your-logstore
+      # LogConfig: Auto
     fc-python37-http:
       Type: 'Aliyun::Serverless::Function'
       Properties:
@@ -23,3 +21,13 @@ Resources:
           Properties:
             AuthType: ANONYMOUS
             Methods: ['GET', 'POST']
+  my_domain:
+    Type: 'Aliyun::Serverless::CustomDomain'
+    Properties:
+      DomainName: Auto
+      Protocol: HTTP
+      RouteConfig:
+        Routes:
+          '/*':
+            ServiceName: python37-demo
+            FunctionName: fc-python37-http
