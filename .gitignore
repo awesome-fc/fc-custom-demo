@@ -2,6 +2,7 @@
 */.fun/root
 */.fun/tmp
 */.fun/python
+*/.fun/build
 */FSharpDemo/obj
 */FSharpDemo/bin
 go-demo/code/bootstrap
@@ -13,3 +14,5 @@ FSharp-demo/.NETCoreApp,Version=v3.1.AssemblyAttributes.fs
 FSharp-demo/.dotnet
 cpp-demo/bin
 cpp-demo/sample/release
+__pycache__
+*.vs

@@ -127,43 +127,8 @@ Hello World
 
 #### Deploy Function
 
-PowerShell adopts the form of third-party packaging. The code package will exceed 50M. The Fun tool installs the third-party package. At the same time, the corresponding function-dependent package can be automatically placed on the NAS. Only the first deployment needs to execute `fun install -v` and` fun nas sync`, if you just want to update the powershell script later, you only need the `fun deploy -y` update function.
-
 ```bash
 sam@iZj6c895xh98:~/fc-custom-demo cd powershell-demo
-sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun install -v
-start installing function dependencies without docker
-
-building powershell-demo/fc-powershell
-Funfile exist, Fun will use container to build forcely
-Step 1/7 : FROM registry.cn-beijing.aliyuncs.com/aliyunfc/runtime-custom:build-1.9.4
-...
-Step 7/7 : RUN fun-install apt-get install powershell
-...
-sha256:7c6476a3a4496bbf3da83bfb8966acc90fa94f4f8baccd248cd79c18c4fae409
-Successfully built 7c6476a3a449
-Successfully tagged fun-cache-965bbabb-ab6f-44e7-9910-7dd1df1d3c3e:latest
-copying function artifact to /Users/sam/gitpro/fc-custom-demo/powershell-demo
-copy from container /mnt/auto/. to localNasDir
-
-Install Success
-sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun nas sync
-fun nas sync
-using template: template.yml
-starting upload /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo to nas://powershell-demo/mnt/auto/
-
-start fun nas init...
-...
-Create local NAS directory of service powershell-demo:
-        /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/nas/auto-default/powershell-demo
-        /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/root
-fun nas init Success
-...
-zipping /Users/sam/gitpro/fc-custom-demo/powershell-demo/.fun/root
-✔ upload done
-unzipping file
-✔ unzip done
-✔ upload completed!
 sam@iZj6c895xh98:~/fc-custom-demo/powershell-demo  fun deploy -y
 ...
         Checking if nas directories /powershell-demo exists, if not, it will be created automatically
