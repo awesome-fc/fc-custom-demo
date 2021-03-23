@@ -12,7 +12,6 @@ Resources:
         Runtime: custom
         MemorySize: 512
         Timeout: 10
-        CAPort: 8080
         CodeUri: './'
         Initializer: index.init
         InitializationTimeout: 30
