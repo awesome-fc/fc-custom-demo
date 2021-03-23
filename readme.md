@@ -36,6 +36,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [Lua](#lua)
 - [Dart](#dart)
 - [Rust](#rust)
+- [Nodejs](#nodejs)
 
 <a name="go"></a>
 
@@ -591,6 +592,40 @@ $ make deploy
 
 # Invoke it with an event string.
 $ fun invoke -e test-event
+```
+
+## Nodejs
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd express-demo
+sam@iZj6c895xh98:~/fc-custom-demo/express-demo  fun deploy -y
+...
+Waiting for service express-demo to be deployed...
+        Waiting for function express-func to be deployed...
+                Waiting for packaging function express-func code...
+                The function express-func has been packaged. A total of 331 files were compressed and the final size was 645.98 KB
+        function express-func deploy success
+service express-demo deploy success
+```
+
+#### Invoke Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo/express-demo  fun invoke
+...
+========= FC invoke Logs begin =========
+FC Initialize Start RequestId: b079b244-d542-4ab8-bb0d-62f52bb5b597
+FC Initialize End RequestId: b079b244-d542-4ab8-bb0d-62f52bb5b597
+FC Invoke Start RequestId: b079b244-d542-4ab8-bb0d-62f52bb5b597
+FC Invoke End RequestId: b079b244-d542-4ab8-bb0d-62f52bb5b597
+
+Duration: 2.50 ms, Billed Duration: 3 ms, Memory Size: 512 MB, Max Memory Used: 39.47 MB
+========= FC invoke Logs end =========
+
+FC Invoke Result:
+Hello World
 ```
 
 #### Deep Dive
