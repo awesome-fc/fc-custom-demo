@@ -12,26 +12,3 @@ Resources:
         Runtime: custom
         MemorySize: 512
         CodeUri: './bin'
-    fc_cpp_http:
-      Type: 'Aliyun::Serverless::Function'
-      Properties:
-        Handler: http.handler
-        Runtime: custom
-        MemorySize: 512
-        CodeUri: './bin'
-      Events:
-        http_t:
-          Type: HTTP
-          Properties:
-            AuthType: ANONYMOUS
-            Methods: ['GET', 'POST', 'PUT', 'DELETE']
-  my_domain:
-    Type: 'Aliyun::Serverless::CustomDomain'
-    Properties:
-      DomainName: Auto
-      Protocol: HTTP
-      RouteConfig:
-        Routes: 
-          '/*':
-            ServiceName: cpp_demo
-            FunctionName: fc_cpp_http
