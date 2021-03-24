@@ -33,6 +33,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [Python37](#python37)
 - [Python37-HTTP](#python37-http)
 - [CPP](#cpp)
+- [CPP-HTTP](#cpp-http)
 - [Lua](#lua)
 - [Dart](#dart)
 - [Rust](#rust)
@@ -454,27 +455,9 @@ fun deploy -y
 Waiting for service cpp_demo to be deployed...
         Waiting for function fc_cpp_event to be deployed...
                 Waiting for packaging function fc_cpp_event code...
-                The function fc_cpp_event has been packaged. A total of 2 files were compressed and the final size was 446.51 KB
+                The function fc_cpp_event has been packaged. A total of 2 files were compressed and the final size was 446.37 KB
         function fc_cpp_event deploy success
-        Waiting for function fc_cpp_http to be deployed...
-                Waiting for packaging function fc_cpp_http code...
-                The function fc_cpp_http has been packaged. A total of 2 files were compressed and the final size was 446.51 KB
-                Waiting for HTTP trigger http_t to be deployed...
-                triggerName: http_t
-                methods: [ 'GET', 'POST', 'PUT', 'DELETE' ]
-                url: https://123456789.cn-hangzhou.fc.aliyuncs.com/2016-08-15/proxy/cpp_demo/fc_cpp_http/
-                Http Trigger will forcefully add a 'Content-Disposition: attachment' field to the response header, which cannot be overwritten
-                and will cause the response to be downloaded as an attachment in the browser. This issue can be avoided by using CustomDomain.
-
-                trigger http_t deploy success
-        function fc_cpp_http deploy success
 service cpp_demo deploy success
-
-Detect 'DomainName:Auto' of custom domain 'my_domain'
-Fun will reuse the temporary domain http://17904911-123456789.test.functioncompute.com, expired at 2020-05-06 20:41:51, limited by 1000 per day.
-
-Waiting for custom domain my_domain to be deployed...
-custom domain my_domain deploy success
 ```
 
 #### Invoke Function
@@ -493,8 +476,65 @@ Duration: 9.11 ms, Billed Duration: 100 ms, Memory Size: 512 MB, Max Memory Used
 
 FC Invoke Result:
 Hello World
+```
 
-sam@iZj6c895xh98:~/fc-custom-demo/cpp-demo  curl http://17904911-123456789.test.functioncompute.com -d "Hello World"
+<a name="cpp-http"></a>
+
+## CPP-HTTP
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd cpp-http-demo
+sam@iZj6c895xh98:~/fc-custom-demo/cpp-http-demo  make deploy
+docker build -t fc-cpp-runtime  -f build-image/Dockerfile build-image
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM aliyunfc/runtime-custom:base
+ ---> 5bbdcf6377bd
+...
+Step 3/3 : RUN apt-get install -y cmake
+ ---> Using cache
+ ---> a244cd26cec2
+Successfully built a244cd26cec2
+Successfully tagged fc-cpp-runtime:latest
+docker run --rm -it -v $(pwd):/tmp fc-cpp-runtime bash -c "cd /tmp && ./build.sh"
+-- The C compiler identification is GNU 6.3.0
+-- The CXX compiler identification is GNU 6.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+...
+Scanning dependencies of target cppruntime
+[ 33%] Building CXX object CMakeFiles/cppruntime.dir/src/handler.cpp.o
+[ 66%] Building CXX object CMakeFiles/cppruntime.dir/src/logging.cpp.o
+[100%] Linking CXX shared library /tmp/bin/libcppruntime.so
+...
+-- Build files have been written to: /tmp/sample/release
+...
+[100%] Built target bootstrap
+fun deploy -y
+
+Waiting for service cpp_http_demo to be deployed...
+        Waiting for function fc_cpp_http to be deployed...
+                Waiting for packaging function fc_cpp_http code...
+                The function fc_cpp_http has been packaged. A total of 2 files were compressed and the final size was 446.37 KB
+                Waiting for HTTP trigger http_t to be deployed...
+                triggerName: http_t
+                methods: [ 'GET', 'POST', 'PUT', 'DELETE' ]
+                trigger http_t deploy success
+        function fc_cpp_http deploy success
+service cpp_http_demo deploy success
+
+Detect 'DomainName:Auto' of custom domain 'my_domain'
+The assigned temporary domain is http://46569662-1986114430573743.test.functioncompute.com，expired at 2021-04-03 15:07:42, limited by 1000 per day.
+
+Waiting for custom domain my_domain to be deployed...
+custom domain my_domain deploy success
+```
+
+#### Invoke Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo/cpp-http-demo  curl http://46569662-1986114430573743.test.functioncompute.com -d "Hello World"
 Hello World
 ```
 
