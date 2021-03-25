@@ -38,6 +38,7 @@ git clone https://github.com/awesome-fc/fc-custom-demo
 - [Dart](#dart)
 - [Rust](#rust)
 - [Nodejs](#nodejs)
+- [SpringBoot](#springboot)
 
 <a name="go"></a>
 
@@ -666,6 +667,55 @@ Duration: 2.50 ms, Billed Duration: 3 ms, Memory Size: 512 MB, Max Memory Used: 
 
 FC Invoke Result:
 Hello World
+```
+
+<a name="springboot"></a>
+
+## Springboot
+
+#### Deploy Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd spring-boot-demo
+sam@iZj6c895xh98:~/fc-custom-demo/spring-boot-demo  ./mvnw package
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< com.example:demo >--------------------------
+[INFO] Building demo 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+...
+[INFO]  T E S T S
+...
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  25.332 s
+[INFO] Finished at: 2021-03-25T14:56:29+08:00
+[INFO] ------------------------------------------------------------------------
+sam@iZj6c895xh98:~/fc-custom-demo/spring-boot-demo  fun deploy -y
+...
+Waiting for service springboot to be deployed...
+        Waiting for function helloworld to be deployed...
+                Waiting for packaging function helloworld code...
+                The function helloworld has been packaged. A total of 3 files were compressed and the final size was 14.33 MB
+                Waiting for HTTP trigger httpTrigger to be deployed...
+                triggerName: httpTrigger
+                methods: [ 'GET', 'POST', 'PUT' ]
+                trigger httpTrigger deploy success
+        function helloworld deploy success
+service springboot deploy success
+
+Detect 'DomainName:Auto' of custom domain 'my_domain'
+Request a new temporary domain ...
+The assigned temporary domain is http://46656184-1986114430573743.test.functioncompute.com，expired at 2021-04-04 15:09:44, limited by 1000 per day.
+Waiting for custom domain my_domain to be deployed...
+custom domain my_domain deploy success
+```
+
+#### Invoke Function
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo/spring-boot-demo  curl http://46656184-1986114430573743.test.functioncompute.com
+Hello, World!
 ```
 
 #### Deep Dive

@@ -18,3 +18,4 @@ __pycache__
 *.vs
 */node_modules
 */package-lock.json
+spring-boot-demo/target
