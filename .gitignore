@@ -17,5 +17,6 @@ cpp-demo/sample/release
 __pycache__
 *.vs
 */node_modules
+*/node-v*linux-x64
 */package-lock.json
 spring-boot-demo/target

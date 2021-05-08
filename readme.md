@@ -641,6 +641,7 @@ $ fun invoke -e test-event
 
 ```bash
 sam@iZj6c895xh98:~/fc-custom-demo cd express-demo
+sam@iZj6c895xh98:~/fc-custom-demo/express-demo  npm install
 sam@iZj6c895xh98:~/fc-custom-demo/express-demo  fun deploy -y
 ...
 Waiting for service express-demo to be deployed...
@@ -669,6 +670,36 @@ FC Invoke Result:
 Hello World
 ```
 
+##### Tips
+
+The built-in custom runtime is nodejs10, express-demo is based on nodejs10, if you want to use nodejs12 or nodejs14 in custom runtime, you can refer to node12-demo
+
+1. first download nodejs binary
+
+```
+sam@iZj6c895xh98:~/fc-custom-demo cd node12-demo
+sam@iZj6c895xh98:~/fc-custom-demo/node12-demo wget https://nodejs.org/dist/v12.13.0/node-v12.13.0-linux-x64.tar.xz
+sam@iZj6c895xh98:~/fc-custom-demo/node12-demo tar -xvf  node-v12.13.0-linux-x64.tar.xz
+sam@iZj6c895xh98:~/fc-custom-demo/node12-demo rm node-v12.13.0-linux-x64.tar.xz
+```
+
+2. set PATH env in template.yml
+
+```
+'PATH': '/code/node-v12.13.0-linux-x64/bin:$PATH'
+```
+
+3. deploy and invoke
+
+```bash
+sam@iZj6c895xh98:~/fc-custom-demo cd node12-demo
+sam@iZj6c895xh98:~/fc-custom-demo/node12-demo  npm install
+sam@iZj6c895xh98:~/fc-custom-demo/node12-demo  fun deploy -y
+...
+sam@iZj6c895xh98:~/fc-custom-demo/node12-demo  fun invoke
+...
+```
+
 <a name="springboot"></a>
 
 ## Springboot
@@ -679,7 +710,7 @@ Hello World
 sam@iZj6c895xh98:~/fc-custom-demo cd spring-boot-demo
 sam@iZj6c895xh98:~/fc-custom-demo/spring-boot-demo  ./mvnw package
 [INFO] Scanning for projects...
-[INFO] 
+[INFO]
 [INFO] --------------------------< com.example:demo >--------------------------
 [INFO] Building demo 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
