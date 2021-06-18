@@ -7,132 +7,139 @@
 #pragma once
 
 #include <ctime>
-#include <string>
+#include <list>
 #include <map>
+#include <optional>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <list>
 
-#include <pistache/optional.h>
 #include <pistache/http_defs.h>
 
-namespace Pistache {
-namespace Http {
+namespace Pistache::Http
+{
 
-struct Cookie {
-    friend std::ostream& operator<<(std::ostream& os, const Cookie& cookie);
+    struct Cookie
+    {
+        friend std::ostream& operator<<(std::ostream& os, const Cookie& cookie);
 
-    Cookie(std::string name, std::string value);
+        Cookie(std::string name, std::string value);
 
-    std::string name;
-    std::string value;
+        std::string name;
+        std::string value;
 
-    Optional<std::string> path;
-    Optional<std::string> domain;
-    Optional<FullDate> expires;
+        std::optional<std::string> path;
+        std::optional<std::string> domain;
+        std::optional<FullDate> expires;
 
-    Optional<int> maxAge;
-    bool secure;
-    bool httpOnly;
+        std::optional<int> maxAge;
+        bool secure;
+        bool httpOnly;
 
-    std::map<std::string, std::string> ext;
+        std::map<std::string, std::string> ext;
 
-    static Cookie fromRaw(const char* str, size_t len);
-    static Cookie fromString(const std::string& str);
-
-private:
-    void write(std::ostream& os) const;
-};
-
-std::ostream& operator<<(std::ostream& os, const Cookie& cookie);
-
-class CookieJar {
-public:
-    using HashMapCookies = std::unordered_map<std::string, Cookie>; // "value" -> Cookie  
-    using Storage = std::unordered_map<std::string, HashMapCookies>; // "name" -> Hashmap("value" -> Cookie)
-
-    struct iterator : std::iterator<std::bidirectional_iterator_tag, Cookie> {
-        iterator(const Storage::const_iterator& _iterator)
-            : iter_storage(_iterator)
-            , iter_cookie_values()
-            , iter_storage_end()
-        { }
-
-        iterator(const Storage::const_iterator& _iterator, const Storage::const_iterator& end)
-            : iter_storage(_iterator)
-            , iter_cookie_values()
-            , iter_storage_end(end)
-        {
-            if(iter_storage != iter_storage_end) {
-                iter_cookie_values = iter_storage->second.begin();
-            }
-        }
-
-        Cookie operator*() const {
-            return iter_cookie_values->second; // return iter_storage->second;
-        }
-
-        const Cookie* operator->() const {
-            return &(iter_cookie_values->second);
-        }
-
-        iterator& operator++() {
-            ++iter_cookie_values;
-            if(iter_cookie_values == iter_storage->second.end()) {
-                ++iter_storage;
-                if(iter_storage != iter_storage_end)
-                    iter_cookie_values = iter_storage->second.begin();
-            }
-            return *this;
-        }
-
-        iterator operator++(int) {
-            iterator ret(iter_storage,iter_storage_end);
-            ++iter_cookie_values;
-            if(iter_cookie_values == iter_storage->second.end()) {
-                ++iter_storage;
-                if(iter_storage != iter_storage_end)   // this check is important
-                    iter_cookie_values = iter_storage->second.begin();
-            }
-
-            return ret;
-        }
-
-        bool operator !=(iterator other) const {
-            return iter_storage != other.iter_storage;
-        }
-
-        bool operator==(iterator other) const {
-            return iter_storage == other.iter_storage;
-        }
+        static Cookie fromRaw(const char* str, size_t len);
+        static Cookie fromString(const std::string& str);
 
     private:
-        Storage::const_iterator iter_storage;
-        HashMapCookies::const_iterator iter_cookie_values;
-        Storage::const_iterator iter_storage_end; // we need to know where main hashmap ends. 
+        void write(std::ostream& os) const;
     };
 
-    CookieJar();
+    std::ostream& operator<<(std::ostream& os, const Cookie& cookie);
 
-    void add(const Cookie& cookie);
-    void removeAllCookies();
+    class CookieJar
+    {
+    public:
+        using HashMapCookies = std::unordered_map<std::string, Cookie>; // "value" -> Cookie
+        using Storage        = std::unordered_map<
+            std::string, HashMapCookies>; // "name" -> Hashmap("value" -> Cookie)
 
-    void addFromRaw(const char *str, size_t len);
-    Cookie get(const std::string& name) const;
+        struct iterator : std::iterator<std::bidirectional_iterator_tag, Cookie>
+        {
+            explicit iterator(const Storage::const_iterator& _iterator)
+                : iter_storage(_iterator)
+                , iter_cookie_values()
+                , iter_storage_end()
+            { }
 
-    bool has(const std::string& name) const;
+            iterator(const Storage::const_iterator& _iterator,
+                     const Storage::const_iterator& end)
+                : iter_storage(_iterator)
+                , iter_cookie_values()
+                , iter_storage_end(end)
+            {
+                if (iter_storage != iter_storage_end)
+                {
+                    iter_cookie_values = iter_storage->second.begin();
+                }
+            }
 
-    iterator begin() const {
-        return iterator(cookies.begin(), cookies.end());
-    }
+            Cookie operator*() const
+            {
+                return iter_cookie_values->second; // return iter_storage->second;
+            }
 
-    iterator end() const {
-        return iterator(cookies.end());
-    }
+            const Cookie* operator->() const { return &(iter_cookie_values->second); }
 
-private:
-    Storage cookies;
-};
+            iterator& operator++()
+            {
+                ++iter_cookie_values;
+                if (iter_cookie_values == iter_storage->second.end())
+                {
+                    ++iter_storage;
+                    if (iter_storage != iter_storage_end)
+                        iter_cookie_values = iter_storage->second.begin();
+                }
+                return *this;
+            }
 
-} // namespace Net
-} // namespace Pistache
+            iterator operator++(int)
+            {
+                iterator ret(iter_storage, iter_storage_end);
+                ++iter_cookie_values;
+                if (iter_cookie_values == iter_storage->second.end())
+                {
+                    ++iter_storage;
+                    if (iter_storage != iter_storage_end) // this check is important
+                        iter_cookie_values = iter_storage->second.begin();
+                }
+
+                return ret;
+            }
+
+            bool operator!=(iterator other) const
+            {
+                return iter_storage != other.iter_storage;
+            }
+
+            bool operator==(iterator other) const
+            {
+                return iter_storage == other.iter_storage;
+            }
+
+        private:
+            Storage::const_iterator iter_storage;
+            HashMapCookies::const_iterator iter_cookie_values;
+            Storage::const_iterator
+                iter_storage_end; // we need to know where main hashmap ends.
+        };
+
+        CookieJar();
+
+        void add(const Cookie& cookie);
+        void removeAllCookies();
+
+        void addFromRaw(const char* str, size_t len);
+        Cookie get(const std::string& name) const;
+
+        bool has(const std::string& name) const;
+
+        iterator begin() const { return iterator(cookies.begin(), cookies.end()); }
+
+        iterator end() const { return iterator(cookies.end()); }
+
+    private:
+        Storage cookies;
+    };
+
+} // namespace Pistache::Http

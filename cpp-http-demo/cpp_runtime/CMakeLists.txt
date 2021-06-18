@@ -4,7 +4,7 @@ include_directories(${CMAKE_SOURCE_DIR}/../include)
 include_directories(${CMAKE_SOURCE_DIR}/../third-party/rapidjson/include)
 link_directories(${CMAKE_SOURCE_DIR}/libs)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(cppruntime)

@@ -6,816 +6,728 @@
 
 #pragma once
 
-#include <type_traits>
-#include <stdexcept>
-#include <array>
-#include <vector>
-#include <sstream>
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <type_traits>
+#include <vector>
 
 #include <sys/timerfd.h>
 
-#include <pistache/net.h>
-#include <pistache/http_headers.h>
-#include <pistache/http_defs.h>
-#include <pistache/cookie.h>
-#include <pistache/stream.h>
-#include <pistache/mime.h>
 #include <pistache/async.h>
-#include <pistache/peer.h>
+#include <pistache/cookie.h>
+#include <pistache/http_defs.h>
+#include <pistache/http_headers.h>
+#include <pistache/meta.h>
+#include <pistache/mime.h>
+#include <pistache/net.h>
+#include <pistache/stream.h>
 #include <pistache/tcp.h>
 #include <pistache/transport.h>
-#include <pistache/view.h>
 
-namespace Pistache {
-namespace Http {
+namespace Pistache
+{
+    namespace Tcp
+    {
+        class Peer;
+    }
+    namespace Http
+    {
 
-namespace details {
-    struct prototype_tag { };
+        namespace details
+        {
+            struct prototype_tag
+            { };
 
-    template<typename P>
-    struct IsHttpPrototype {
-        template<typename U> static auto test(U *) -> decltype(typename U::tag());
-        template<typename U> static auto test(...) -> std::false_type;
+            template <typename P>
+            struct IsHttpPrototype
+            {
+                template <typename U>
+                static auto test(U*) -> decltype(typename U::tag());
+                template <typename U>
+                static auto test(...) -> std::false_type;
 
-        static constexpr bool value =
-            std::is_same<decltype(test<P>(nullptr)), prototype_tag>::value;
-    };
-}
+                static constexpr bool value = std::is_same<decltype(test<P>(nullptr)), prototype_tag>::value;
+            };
+        } // namespace details
 
-#define HTTP_PROTOTYPE(Class) \
+#define HTTP_PROTOTYPE(Class)                   \
     PROTOTYPE_OF(Pistache::Tcp::Handler, Class) \
     typedef Pistache::Http::details::prototype_tag tag;
 
-namespace Private {
-    class ParserBase;
-    template<typename T> class Parser;
-    class RequestLineStep;
-    class ResponseLineStep;
-    class HeadersStep;
-    class BodyStep;
-}
+        namespace Private
+        {
+            class RequestLineStep;
+            class ResponseLineStep;
+            class HeadersStep;
+            class BodyStep;
+        } // namespace Private
 
-template< class CharT, class Traits>
-std::basic_ostream<CharT, Traits>& crlf(std::basic_ostream<CharT, Traits>& os) {
-    static constexpr char CRLF[] = {0xD, 0xA};
-    os.write(CRLF, 2);
+        template <class CharT, class Traits>
+        std::basic_ostream<CharT, Traits>& crlf(std::basic_ostream<CharT, Traits>& os)
+        {
+            static constexpr char CRLF[] = { 0xD, 0xA };
+            os.write(CRLF, 2);
 
-    return os;
-}
-
-// 4. HTTP Message
-class Message {
-public:
-    friend class Private::HeadersStep;
-    friend class Private::BodyStep;
-    friend class Private::ParserBase;
-
-    Message();
-
-    Message(const Message& other) = default;
-    Message& operator=(const Message& other) = default;
-
-    Message(Message&& other) = default;
-    Message& operator=(Message&& other) = default;
-
-protected:
-    Version version_;
-    Code code_;
-
-    std::string body_;
-
-    CookieJar cookies_;
-    Header::Collection headers_;
-
-};
-
-namespace Uri {
-
-    class Query {
-    public:
-        Query();
-        Query(std::initializer_list<std::pair<const std::string, std::string>> params);
-
-        void add(std::string name, std::string value);
-        Optional<std::string> get(const std::string& name) const;
-        bool has(const std::string& name) const;
-        // Return empty string or "?key1=value1&key2=value2" if query exist
-        std::string as_str() const;
-
-        void clear() {
-            params.clear();
+            return os;
         }
 
-        // \brief Return iterator to the beginning of the parameters map
-        std::unordered_map<std::string, std::string>::const_iterator
-          parameters_begin() const {
-            return params.begin();
-        }
+        // 4. HTTP Message
+        class Message
+        {
+        public:
+            friend class Private::HeadersStep;
+            friend class Private::BodyStep;
+            friend class ResponseWriter;
 
-        // \brief Return iterator to the end of the parameters map
-        std::unordered_map<std::string, std::string>::const_iterator
-          parameters_end() const {
-            return params.end();
-        }
+            Message() = default;
+            explicit Message(Version version);
 
-        // \brief returns all parameters given in the query
-        std::vector<std::string> parameters() const {
-          std::vector<std::string> keys;
-          std::transform(params.begin(), params.end(), std::back_inserter(keys),
-            [](const std::unordered_map<std::string, std::string>::value_type
-               &pair) {return pair.first;});
-          return keys;
-        }
+            Message(const Message& other) = default;
+            Message& operator=(const Message& other) = default;
 
-    private:
-        //first is key second is value
-        std::unordered_map<std::string, std::string> params;
-    };
-} // namespace Uri
+            Message(Message&& other) = default;
+            Message& operator=(Message&& other) = default;
 
+            Version version() const;
+            Code code() const;
 
-// 5. Request
-class Request : public Message {
-public:
-    friend class Private::RequestLineStep;
-    friend class Private::Parser<Http::Request>;
+            const std::string& body() const;
+            std::string body();
 
-    friend class RequestBuilder;
-    // @Todo: try to remove the need for friend-ness here
-    friend class Client;
+            const CookieJar& cookies() const;
+            CookieJar& cookies();
+            const Header::Collection& headers() const;
+            Header::Collection& headers();
 
-    Request();
+        protected:
+            Version version_ = Version::Http11;
+            Code code_;
 
-    Request(const Request& other) = default;
-    Request& operator=(const Request& other) = default;
+            std::string body_;
 
-    Request(Request&& other) = default;
-    Request& operator=(Request&& other) = default;
+            CookieJar cookies_;
+            Header::Collection headers_;
+        };
 
-    Version version() const;
-    Method method() const;
-    std::string resource() const;
+        namespace Uri
+        {
 
-    std::string body() const;
+            class Query
+            {
+            public:
+                Query();
+                explicit Query(
+                    std::initializer_list<std::pair<const std::string, std::string>> params);
 
-    const Header::Collection& headers() const;
-    const Uri::Query& query() const;
+                void add(std::string name, std::string value);
+                std::optional<std::string> get(const std::string& name) const;
+                bool has(const std::string& name) const;
+                // Return empty string or "?key1=value1&key2=value2" if query exist
+                std::string as_str() const;
 
-    const CookieJar& cookies() const;
+                void clear() { params.clear(); }
 
-    /* @Investigate: this is disabled because of a lock in the shared_ptr / weak_ptr
-        implementation of libstdc++. Under contention, we experience a performance
-        drop of 5x with that lock
+                // \brief Return iterator to the beginning of the parameters map
+                std::unordered_map<std::string, std::string>::const_iterator
+                parameters_begin() const
+                {
+                    return params.begin();
+                }
 
-        If this turns out to be a problem, we might be able to replace the weak_ptr
-        trick to detect peer disconnection by a plain old "observer" pointer to a
-        tcp connection with a "stale" state
-    */
+                // \brief Return iterator to the end of the parameters map
+                std::unordered_map<std::string, std::string>::const_iterator
+                parameters_end() const
+                {
+                    return params.end();
+                }
+
+                // \brief returns all parameters given in the query
+                std::vector<std::string> parameters() const
+                {
+                    std::vector<std::string> keys;
+                    std::transform(
+                        params.begin(), params.end(), std::back_inserter(keys),
+                        [](const std::unordered_map<std::string, std::string>::value_type& pair) { return pair.first; });
+                    return keys;
+                }
+
+            private:
+                // first is key second is value
+                std::unordered_map<std::string, std::string> params;
+            };
+        } // namespace Uri
+
+        // 5. Request
+        class Request : public Message
+        {
+        public:
+            friend class Private::RequestLineStep;
+
+            friend class RequestBuilder;
+
+            Request() = default;
+
+            Request(const Request& other) = default;
+            Request& operator=(const Request& other) = default;
+
+            Request(Request&& other) = default;
+            Request& operator=(Request&& other) = default;
+
+            Method method() const;
+            const std::string& resource() const;
+
+            const Uri::Query& query() const;
+
+/* @Investigate: this is disabled because of a lock in the shared_ptr /
+   weak_ptr implementation of libstdc++. Under contention, we experience a
+   performance drop of 5x with that lock
+
+   If this turns out to be a problem, we might be able to replace the
+   weak_ptr trick to detect peer disconnection by a plain old "observer"
+   pointer to a tcp connection with a "stale" state
+*/
 #ifdef LIBSTDCPP_SMARTPTR_LOCK_FIXME
-    std::shared_ptr<Tcp::Peer> peer() const;
+            std::shared_ptr<Tcp::Peer> peer() const;
 #endif
 
-private:
-#ifdef LIBSTDCPP_SMARTPTR_LOCK_FIXME
-    void associatePeer(const std::shared_ptr<Tcp::Peer>& peer) {
-        if (peer_.use_count() > 0)
-            throw std::runtime_error("A peer was already associated to the response");
+            const Address& address() const;
 
-        peer_ = peer;
-    }
+            void copyAddress(const Address& address) { address_ = address; }
+
+            std::chrono::milliseconds timeout() const;
+
+        private:
+#ifdef LIBSTDCPP_SMARTPTR_LOCK_FIXME
+            void associatePeer(const std::shared_ptr<Tcp::Peer>& peer)
+            {
+                if (peer_.use_count() > 0)
+                    throw std::runtime_error("A peer was already associated to the response");
+
+                peer_ = peer;
+            }
 #endif
 
-    Method method_;
-    std::string resource_;
-    Uri::Query query_;
+            Method method_;
+            std::string resource_;
+            Uri::Query query_;
 
 #ifdef LIBSTDCPP_SMARTPTR_LOCK_FIXME
-    std::weak_ptr<Tcp::Peer> peer_;
+            std::weak_ptr<Tcp::Peer> peer_;
 #endif
-};
+            Address address_;
+            std::chrono::milliseconds timeout_ = std::chrono::milliseconds(0);
+        };
 
-class Handler;
-class ResponseWriter;
+        class Handler;
+        class ResponseWriter;
 
-class Timeout {
-public:
+        class Timeout
+        {
+        public:
+            friend class ResponseWriter;
 
-    friend class ResponseWriter;
+            explicit Timeout(Timeout&& other)
+                : handler(other.handler)
+                , transport(other.transport)
+                , armed(other.armed)
+                , timerFd(other.timerFd)
+                , peer(std::move(other.peer))
+            {
+                // cppcheck-suppress useInitializationList
+                other.timerFd = -1;
+            }
 
-    Timeout(Timeout&& other)
-        : handler(other.handler)
-        , request(std::move(other.request))
-        , transport(other.transport)
-        , armed(other.armed)
-        , timerFd(other.timerFd)
-        , peer(std::move(other.peer))
-    {
-        other.timerFd = -1;
-    }
+            Timeout& operator=(Timeout&& other)
+            {
+                handler       = other.handler;
+                transport     = other.transport;
+                version       = other.version;
+                armed         = other.armed;
+                timerFd       = other.timerFd;
+                other.timerFd = -1;
+                peer          = std::move(other.peer);
+                return *this;
+            }
 
-    Timeout& operator=(Timeout&& other) {
-        handler = other.handler;
-        transport = other.transport;
-        request = std::move(other.request);
-        armed = other.armed;
-        timerFd = other.timerFd;
-        other.timerFd = -1;
-        peer = std::move(other.peer);
-        return *this;
-    }
+            ~Timeout();
 
-    template<typename Duration>
-    void arm(Duration duration) {
-        Async::Promise<uint64_t> p([=](Async::Deferred<uint64_t> deferred) {
-            timerFd = TRY_RET(timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK));
-            transport->armTimer(timerFd, duration, std::move(deferred));
-        });
+            template <typename Duration>
+            void arm(Duration duration)
+            {
+                Async::Promise<uint64_t> p([=](Async::Deferred<uint64_t> deferred) {
+                    timerFd = TRY_RET(timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK));
+                    transport->armTimer(timerFd, duration, std::move(deferred));
+                });
 
-        p.then(
-            [=](uint64_t numWakeup) {
-                this->armed = false;
-                this->onTimeout(numWakeup);
-                close(timerFd);
-        },
-        [=](std::exception_ptr exc) {
-            std::rethrow_exception(exc);
-        });
+                p.then(
+                    [=](uint64_t numWakeup) {
+                        this->armed = false;
+                        this->onTimeout(numWakeup);
+                        close(timerFd);
+                    },
+                    [=](std::exception_ptr exc) { std::rethrow_exception(exc); });
 
-        armed = true;
-    }
+                armed = true;
+            }
 
-    void disarm() {
-        if (armed) {
-            transport->disarmTimer(timerFd);
-        }
-    }
+            void disarm();
 
-    bool isArmed() const {
-        return armed;
-    }
+            bool isArmed() const;
 
-private:
-    Timeout(const Timeout& other)
-        : handler(other.handler)
-        , request(other.request)
-        , transport(other.transport)
-        , armed(other.armed)
-        , timerFd(other.timerFd)
-        , peer()
-    { }
+        private:
+            Timeout(const Timeout& other) = default;
 
-    Timeout(Tcp::Transport* transport_,
-            Handler* handler_,
-            Request request_)
-        : handler(handler_)
-        , request(std::move(request_))
-        , transport(transport_)
-        , armed(false)
-        , timerFd(-1)
-        , peer()
-    { }
+            Timeout(Tcp::Transport* transport_, Http::Version version, Handler* handler_,
+                    std::weak_ptr<Tcp::Peer> peer_);
 
-    template<typename Ptr>
-    void associatePeer(const Ptr& ptr) {
-        peer = ptr;
-    }
+            void onTimeout(uint64_t numWakeup);
 
-    void onTimeout(uint64_t numWakeup);
+            Handler* handler;
+            Http::Version version;
+            Tcp::Transport* transport;
+            bool armed;
+            Fd timerFd;
+            std::weak_ptr<Tcp::Peer> peer;
+        };
 
-    Handler* handler;
-    Request request;
-    Tcp::Transport* transport;
-    bool armed;
-    Fd timerFd;
-    std::weak_ptr<Tcp::Peer> peer;
-};
+        class ResponseStream final
+        {
+        public:
+            friend class ResponseWriter;
 
-class ResponseStream : public Message {
-public:
-    friend class ResponseWriter;
+            ResponseStream(ResponseStream&& other);
 
-    ResponseStream(ResponseStream&& other)
-        : Message(std::move(other))
-        , peer_(std::move(other.peer_))
-        , buf_(std::move(other.buf_))
-        , transport_(other.transport_)
-        , timeout_(std::move(other.timeout_))
-    { }
+            ResponseStream& operator=(ResponseStream&& other);
 
-    ResponseStream& operator=(ResponseStream&& other) {
-        Message::operator=(std::move(other));
-        peer_ = std::move(other.peer_);
-        buf_ = std::move(other.buf_);
-        transport_ = other.transport_;
-        timeout_ = std::move(other.timeout_);
+            template <typename T>
+            friend ResponseStream& operator<<(ResponseStream& stream, const T& val);
 
-        return *this;
-    }
+            std::streamsize write(const char* data, std::streamsize sz);
 
-    template<typename T>
-    friend
-    ResponseStream& operator<<(ResponseStream& stream, const T& val);
+            void flush();
+            void ends();
 
-    std::streamsize write(const char * data, std::streamsize sz) {
-        std::ostream os(&buf_);
-        os << std::hex << sz << crlf;
-        os.write(data, sz);
-        os << crlf;
-        return sz;
-    }
+        private:
+            ResponseStream(Message&& other, std::weak_ptr<Tcp::Peer> peer,
+                           Tcp::Transport* transport, Timeout timeout, size_t streamSize,
+                           size_t maxResponseSize);
 
-    const Header::Collection& headers() const {
-        return headers_;
-    }
+            std::shared_ptr<Tcp::Peer> peer() const;
 
-    const CookieJar& cookies() const {
-        return cookies_;
-    }
+            Message response_;
+            std::weak_ptr<Tcp::Peer> peer_;
+            DynamicStreamBuf buf_;
+            Tcp::Transport* transport_;
+            Timeout timeout_;
+        };
 
-    Code code() const {
-        return code_;
-    }
-
-    void flush();
-    void ends();
-
-private:
-    ResponseStream(
-            Message&& other,
-            std::weak_ptr<Tcp::Peer> peer,
-            Tcp::Transport* transport,
-            Timeout timeout,
-            size_t streamSize);
-
-    std::shared_ptr<Tcp::Peer> peer() const {
-        if (peer_.expired())
-            throw std::runtime_error("Write failed: Broken pipe");
-
-        return peer_.lock();
-    }
-
-    std::weak_ptr<Tcp::Peer> peer_;
-    DynamicStreamBuf buf_;
-    Tcp::Transport* transport_;
-    Timeout timeout_;
-};
-
-inline ResponseStream& ends(ResponseStream &stream) {
-    stream.ends();
-    return stream;
-}
-
-inline ResponseStream& flush(ResponseStream& stream) {
-    stream.flush();
-    return stream;
-}
-
-template<typename T>
-ResponseStream& operator<<(ResponseStream& stream, const T& val) {
-    Size<T> size;
-
-    std::ostream os(&stream.buf_);
-    os << std::hex << size(val) << crlf;
-    os << val << crlf;
-
-    return stream;
-}
-
-inline ResponseStream&
-operator<<(ResponseStream& stream, ResponseStream & (*func)(ResponseStream &)) {
-    return (*func)(stream);
-}
-
-// 6. Response
-// @Investigate public inheritence
-class Response : public Message {
-public:
-    friend class Private::ResponseLineStep;
-    friend class Private::Parser<Http::Response>;
-
-    Response() = default;
-
-    explicit Response(Version version)
-        : Message()
-    {
-        version_ = version;
-    }
-
-    Response(const Response& other) = default;
-    Response& operator=(const Response& other) = default;
-    Response(Response&& other) = default;
-    Response& operator=(Response&& other) = default;
-
-    const Header::Collection& headers() const {
-        return headers_;
-    }
-
-    Header::Collection& headers() {
-        return headers_;
-    }
-
-    const CookieJar& cookies() const {
-        return cookies_;
-    }
-
-    CookieJar& cookies() {
-        return cookies_;
-    }
-
-    Code code() const {
-        return code_;
-    }
-
-    std::string body() const {
-        return body_;
-    }
-
-    Version version() const {
-        return version_;
-    }
-
-};
-
-class ResponseWriter : public Response {
-public:
-    static constexpr size_t DefaultStreamSize = 512;
-
-    friend Async::Promise<ssize_t> serveFile(ResponseWriter&, const std::string&, const Mime::MediaType&);
-
-    friend class Handler;
-    friend class Timeout;
-
-    ResponseWriter& operator=(const ResponseWriter& other) = delete;
-
-    friend class Private::ResponseLineStep;
-    friend class Private::Parser<Http::Response>;
-
-    //
-    // C++11: std::weak_ptr move constructor is C++14 only so the default
-    // version of move constructor / assignement operator does not work and we
-    // have to define it ourself
-    ResponseWriter(ResponseWriter&& other)
-        : Response(std::move(other))
-        , peer_(other.peer_)
-        , buf_(std::move(other.buf_))
-        , transport_(other.transport_)
-        , timeout_(std::move(other.timeout_))
-    { }
-    ResponseWriter& operator=(ResponseWriter&& other) {
-        Response::operator=(std::move(other));
-        peer_ = std::move(other.peer_);
-        transport_ = other.transport_;
-        buf_ = std::move(other.buf_);
-        timeout_ = std::move(other.timeout_);
-        return *this;
-    }
-
-    void setMime(const Mime::MediaType& mime) {
-        auto ct = headers_.tryGet<Header::ContentType>();
-        if (ct)
-            ct->setMime(mime);
-        else
-            headers_.add(std::make_shared<Header::ContentType>(mime));
-    }
-
-    /* @Feature: add helper functions for common http return code:
-     * - halt() -> 404
-     * - movedPermantly -> 301
-     * - moved() -> 302
-     */
-
-    Async::Promise<ssize_t> send(Code code) {
-        code_ = code;
-        return putOnWire(nullptr, 0);
-    }
-    Async::Promise<ssize_t> send(
-            Code code,
-            const std::string& body,
-            const Mime::MediaType &mime = Mime::MediaType())
-    {
-        code_ = code;
-
-        if (mime.isValid()) {
-            auto contentType = headers_.tryGet<Header::ContentType>();
-            if (contentType)
-                contentType->setMime(mime);
-            else
-                headers_.add(std::make_shared<Header::ContentType>(mime));
+        inline ResponseStream& ends(ResponseStream& stream)
+        {
+            stream.ends();
+            return stream;
         }
 
-        return putOnWire(body.c_str(), body.size());
-    }
-
-    template<size_t N>
-    Async::Promise<ssize_t> send(
-            Code code,
-            const char (&arr)[N],
-            const Mime::MediaType& mime = Mime::MediaType())
-    {
-        /* @Refactor: code duplication */
-        code_ = code;
-
-        if (mime.isValid()) {
-            auto contentType = headers_.tryGet<Header::ContentType>();
-            if (contentType)
-                contentType->setMime(mime);
-            else
-                headers_.add(std::make_shared<Header::ContentType>(mime));
+        inline ResponseStream& flush(ResponseStream& stream)
+        {
+            stream.flush();
+            return stream;
         }
 
-        return putOnWire(arr, N - 1);
-    }
+        template <typename T>
+        ResponseStream& operator<<(ResponseStream& stream, const T& val)
+        {
+            Size<T> size;
 
-    ResponseStream stream(Code code, size_t streamSize = DefaultStreamSize) {
-        code_ = code;
+            std::ostream os(&stream.buf_);
+            os << std::hex << size(val) << crlf;
+            os << val << crlf;
 
-        return ResponseStream(
-                std::move(*this), peer_, transport_, std::move(timeout_), streamSize);
-    }
+            return stream;
+        }
 
-    template<typename Duration>
-    void timeoutAfter(Duration duration) {
-        timeout_.arm(duration);
-    }
+        inline ResponseStream& operator<<(ResponseStream& stream,
+                                          ResponseStream& (*func)(ResponseStream&))
+        {
+            return (*func)(stream);
+        }
 
-    Timeout& timeout() {
-        return timeout_;
-    }
+        // 6. Response
+        // @Investigate public inheritence
+        class Response : public Message
+        {
+        public:
+            friend class Private::ResponseLineStep;
 
-    std::shared_ptr<Tcp::Peer> peer() const {
-        if (peer_.expired())
-            throw std::runtime_error("Write failed: Broken pipe");
+            Response() = default;
+            explicit Response(Version version);
 
-        return peer_.lock();
-    }
+            Response(const Response& other) = default;
+            Response& operator=(const Response& other) = default;
+            Response(Response&& other)                 = default;
+            Response& operator=(Response&& other) = default;
+        };
 
-    // Unsafe API
+        class ResponseWriter final
+        {
+        public:
+            static constexpr size_t DefaultStreamSize = 512;
 
-    DynamicStreamBuf *rdbuf() {
-       return &buf_;
-    }
+            friend Async::Promise<ssize_t>
+            serveFile(ResponseWriter&, const std::string&, const Mime::MediaType&);
 
-    DynamicStreamBuf *rdbuf(DynamicStreamBuf* other) {
-       UNUSED(other)
-       throw std::domain_error("Unimplemented");
-    }
+            friend class Handler;
+            friend class Timeout;
 
-    ResponseWriter clone() const {
-        return ResponseWriter(*this);
-    }
+            ResponseWriter& operator=(const ResponseWriter& other) = delete;
 
-private:
-    ResponseWriter(Tcp::Transport* transport, Request request, Handler* handler)
-        : Response(request.version())
-        , peer_()
-        , buf_(DefaultStreamSize)
-        , transport_(transport)
-        , timeout_(transport, handler, std::move(request))
-    { }
+            friend class Private::ResponseLineStep;
 
-    ResponseWriter(const ResponseWriter& other)
-        : Response(other)
-        , peer_(other.peer_)
-        , buf_(DefaultStreamSize)
-        , transport_(other.transport_)
-        , timeout_(other.timeout_)
-    { }
+            ResponseWriter(Http::Version version, Tcp::Transport* transport,
+                           Handler* handler, std::weak_ptr<Tcp::Peer> peer);
 
-    template<typename Ptr>
-    void associatePeer(const Ptr& peer) {
-        if (peer_.use_count() > 0)
-            throw std::runtime_error("A peer was already associated to the response");
+            //
+            // C++11: std::weak_ptr move constructor is C++14 only so the default
+            // version of move constructor / assignement operator does not work and we
+            // have to define it ourself
+            // We're now using C++17, should this be removed?
+            ResponseWriter(ResponseWriter&& other);
 
-        peer_ = peer;
-        timeout_.associatePeer(peer_);
-    }
+            ResponseWriter& operator=(ResponseWriter&& other) = default;
 
-    Async::Promise<ssize_t> putOnWire(const char* data, size_t len);
+            void setMime(const Mime::MediaType& mime);
 
-    std::weak_ptr<Tcp::Peer> peer_;
-    DynamicStreamBuf buf_;
-    Tcp::Transport *transport_;
-    Timeout timeout_;
-};
+            /* @Feature: add helper functions for common http return code:
+   * - halt() -> 404
+   * - movedPermantly -> 301
+   * - moved() -> 302
+   */
+            Async::Promise<ssize_t>
+            sendMethodNotAllowed(const std::vector<Http::Method>& supportedMethods);
 
-Async::Promise<ssize_t> serveFile(
-        ResponseWriter& response, const std::string& fileName,
-        const Mime::MediaType& contentType = Mime::MediaType());
+            Async::Promise<ssize_t> send(Code code, const std::string& body = "",
+                                         const Mime::MediaType& mime = Mime::MediaType());
 
-namespace Private {
+            template <size_t N>
+            Async::Promise<ssize_t>
+            send(Code code, const char (&arr)[N],
+                 const Mime::MediaType& mime = Mime::MediaType())
+            {
+                return sendImpl(code, arr, N - 1, mime);
+            }
 
-    enum class State { Again, Next, Done };
+            Async::Promise<ssize_t> send(Code code, const char* data, const size_t size,
+                                         const Mime::MediaType& mime = Mime::MediaType());
 
-    struct Step {
-        explicit Step(Message* request)
-            : message(request)
-        { }
+            ResponseStream stream(Code code, size_t streamSize = DefaultStreamSize);
 
-        virtual ~Step() = default;
+            template <typename Duration>
+            void timeoutAfter(Duration duration)
+            {
+                timeout_.arm(duration);
+            }
 
-        virtual State apply(StreamCursor& cursor) = 0;
+            const CookieJar& cookies() const;
+            CookieJar& cookies();
 
-        static void raise(const char* msg, Code code = Code::Bad_Request);
+            const Header::Collection& headers() const;
+            Header::Collection& headers();
 
-        Message *message;
-    };
+            Timeout& timeout();
 
-    class RequestLineStep : public Step {
-    public:
-        explicit RequestLineStep(Request* request)
-            : Step(request)
-        { }
+            std::shared_ptr<Tcp::Peer> peer() const;
 
-        State apply(StreamCursor& cursor) override;
-    };
+            // Returns total count of HTTP bytes (headers, cookies, body) written when
+            // sending the response.  Result valid AFTER ResponseWriter.send() is called.
+            ssize_t getResponseSize() const { return sent_bytes_; }
 
-    class ResponseLineStep : public Step {
-    public:
-        explicit ResponseLineStep(Response* response)
-            : Step(response)
-        { }
+            // Returns HTTP result code that was sent with the response.
+            Code getResponseCode() const { return response_.code(); }
 
-        State apply(StreamCursor& cursor) override;
-    };
+            // Unsafe API
 
-    class HeadersStep : public Step {
-    public:
-        explicit HeadersStep(Message* request)
-            : Step(request)
-        { }
+            DynamicStreamBuf* rdbuf();
 
-        State apply(StreamCursor& cursor) override;
-    };
+            DynamicStreamBuf* rdbuf(DynamicStreamBuf* other);
 
-    class BodyStep : public Step {
-    public:
-        explicit BodyStep(Message* message_)
-            : Step(message_)
-            , chunk(message_)
-            , bytesRead(0)
-        { }
+            ResponseWriter clone() const;
 
-        State apply(StreamCursor& cursor) override;
-
-    private:
-        struct Chunk {
-            enum Result { Complete, Incomplete, Final };
-
-            explicit Chunk(Message* message_)
-              : message(message_)
-              , bytesRead(0)
-              , size(-1)
-            { }
-
-            Result parse(StreamCursor& cursor);
-
-            void reset() {
-                bytesRead = 0;
-                size = -1;
+            std::shared_ptr<Tcp::Peer> getPeer() const
+            {
+                if (auto sp = peer_.lock())
+                    return sp;
+                return nullptr;
             }
 
         private:
-            Message* message;
-            size_t bytesRead;
-            ssize_t size;
+            ResponseWriter(const ResponseWriter& other);
+
+            Async::Promise<ssize_t> sendImpl(Code code, const char* data,
+                                             const size_t size,
+                                             const Mime::MediaType& mime);
+
+            Async::Promise<ssize_t> putOnWire(const char* data, size_t len);
+
+            Response response_;
+            std::weak_ptr<Tcp::Peer> peer_;
+            DynamicStreamBuf buf_;
+            Tcp::Transport* transport_ = nullptr;
+            Timeout timeout_;
+            ssize_t sent_bytes_ = 0;
         };
 
-        State parseContentLength(StreamCursor& cursor, const std::shared_ptr<Header::ContentLength>& cl);
-        State parseTransferEncoding(StreamCursor& cursor, const std::shared_ptr<Header::TransferEncoding>& te);
+        Async::Promise<ssize_t>
+        serveFile(ResponseWriter& writer, const std::string& fileName,
+                  const Mime::MediaType& contentType = Mime::MediaType());
 
-        Chunk chunk;
-        size_t bytesRead;
-    };
-
-    class ParserBase {
-    public:
-        ParserBase()
-            : buffer()
-            , cursor(&buffer)
-            , allSteps()
-            , currentStep(0)
-        { }
-
-        ParserBase(const ParserBase& other) = delete;
-        ParserBase(ParserBase&& other) = default;
-
-        bool feed(const char* data, size_t len);
-        virtual void reset();
-
-        virtual ~ParserBase() { }
-
-        State parse();
-
-        ArrayStreamBuf<char> buffer;
-        StreamCursor cursor;
-
-    protected:
-        static constexpr size_t StepsCount = 3;
-
-        std::array<std::unique_ptr<Step>, StepsCount> allSteps;
-        size_t currentStep;
-
-    };
-
-    template<typename Message> class Parser;
-
-    template<> class Parser<Http::Request> : public ParserBase {
-
-    public:
-
-        Parser()
-            : ParserBase()
-            , request()
+        namespace Private
         {
-            allSteps[0].reset(new RequestLineStep(&request));
-            allSteps[1].reset(new HeadersStep(&request));
-            allSteps[2].reset(new BodyStep(&request));
-        }
 
-        Parser(const char* data, size_t len)
-            : ParserBase()
-            , request()
+            enum class State { Again,
+                               Next,
+                               Done };
+            using StepId = uint64_t;
+
+            struct Step
+            {
+                explicit Step(Message* request);
+
+                virtual ~Step() = default;
+
+                virtual StepId id() const                 = 0;
+                virtual State apply(StreamCursor& cursor) = 0;
+
+                static void raise(const char* msg, Code code = Code::Bad_Request);
+
+            protected:
+                Message* message;
+            };
+
+            class RequestLineStep : public Step
+            {
+            public:
+                static constexpr StepId Id = Meta::Hash::fnv1a("RequestLine");
+
+                explicit RequestLineStep(Request* request)
+                    : Step(request)
+                { }
+
+                StepId id() const override { return Id; }
+                State apply(StreamCursor& cursor) override;
+            };
+
+            class ResponseLineStep : public Step
+            {
+            public:
+                static constexpr StepId Id = Meta::Hash::fnv1a("ResponseLine");
+
+                explicit ResponseLineStep(Response* response)
+                    : Step(response)
+                { }
+
+                StepId id() const override { return Id; }
+                State apply(StreamCursor& cursor) override;
+            };
+
+            class HeadersStep : public Step
+            {
+            public:
+                static constexpr StepId Id = Meta::Hash::fnv1a("Headers");
+
+                explicit HeadersStep(Message* request)
+                    : Step(request)
+                { }
+
+                StepId id() const override { return Id; }
+                State apply(StreamCursor& cursor) override;
+            };
+
+            class BodyStep : public Step
+            {
+            public:
+                static constexpr auto Id = Meta::Hash::fnv1a("Body");
+
+                explicit BodyStep(Message* message_)
+                    : Step(message_)
+                    , chunk(message_)
+                    , bytesRead(0)
+                { }
+
+                StepId id() const override { return Id; }
+                State apply(StreamCursor& cursor) override;
+
+            private:
+                struct Chunk
+                {
+                    enum Result { Complete,
+                                  Incomplete,
+                                  Final };
+
+                    explicit Chunk(Message* message_)
+                        : message(message_)
+                        , bytesRead(0)
+                        , size(-1)
+                    { }
+
+                    Result parse(StreamCursor& cursor);
+
+                    void reset()
+                    {
+                        bytesRead = 0;
+                        size      = -1;
+                    }
+
+                private:
+                    Message* message;
+                    size_t bytesRead;
+                    ssize_t size;
+                    ssize_t alreadyAppendedChunkBytes;
+                };
+
+                State parseContentLength(StreamCursor& cursor,
+                                         const std::shared_ptr<Header::ContentLength>& cl);
+                State
+                parseTransferEncoding(StreamCursor& cursor,
+                                      const std::shared_ptr<Header::TransferEncoding>& te);
+
+                Chunk chunk;
+                size_t bytesRead;
+            };
+
+            class ParserBase
+            {
+            public:
+                static constexpr size_t StepsCount = 3;
+
+                explicit ParserBase(size_t maxDataSize);
+
+                ParserBase(const ParserBase&) = delete;
+                ParserBase& operator=(const ParserBase&) = delete;
+                ParserBase(ParserBase&&)                 = default;
+                ParserBase& operator=(ParserBase&&) = default;
+
+                virtual ~ParserBase() = default;
+
+                bool feed(const char* data, size_t len);
+                virtual void reset();
+                State parse();
+
+                Step* step();
+
+            protected:
+                std::array<std::unique_ptr<Step>, StepsCount> allSteps;
+                size_t currentStep = 0;
+
+            private:
+                ArrayStreamBuf<char> buffer;
+                StreamCursor cursor;
+            };
+
+            template <typename Message>
+            class ParserImpl;
+
+            template <>
+            class ParserImpl<Http::Request> : public ParserBase
+            {
+            public:
+                explicit ParserImpl(size_t maxDataSize);
+
+                void reset() override;
+
+                std::chrono::steady_clock::time_point time() const
+                {
+                    return time_;
+                }
+
+                Request request;
+
+            private:
+                std::chrono::steady_clock::time_point time_;
+            };
+
+            template <>
+            class ParserImpl<Http::Response> : public ParserBase
+            {
+            public:
+                explicit ParserImpl(size_t maxDataSize);
+
+                Response response;
+            };
+
+        } // namespace Private
+
+        using Parser         = Private::ParserBase;
+        using RequestParser  = Private::ParserImpl<Http::Request>;
+        using ResponseParser = Private::ParserImpl<Http::Response>;
+
+        class Handler : public Tcp::Handler
         {
-            allSteps[0].reset(new RequestLineStep(&request));
-            allSteps[1].reset(new HeadersStep(&request));
-            allSteps[2].reset(new BodyStep(&request));
+        public:
+            static constexpr const char* ParserData = "__Parser";
 
-            feed(data, len);
-        }
+            virtual void onRequest(const Request& request, ResponseWriter response) = 0;
 
-        void reset() {
-            ParserBase::reset();
+            virtual void onTimeout(const Request& request, ResponseWriter response);
 
-            request.headers_.clear();
-            request.body_.clear();
-            request.resource_.clear();
-            request.query_.clear();
-        }
+            void setMaxRequestSize(size_t value);
+            size_t getMaxRequestSize() const;
+            void setMaxResponseSize(size_t value);
+            size_t getMaxResponseSize() const;
 
-        Request request;
-    };
+            template <typename Duration>
+            void setHeaderTimeout(Duration timeout)
+            {
+                headerTimeout_ = std::chrono::duration_cast<std::chrono::milliseconds>(timeout);
+            }
 
-    template<> class Parser<Http::Response> : public ParserBase {
-    public:
-        Parser()
-            : ParserBase()
-            , response()
+            template <typename Duration>
+            void setBodyTimeout(Duration timeout)
+            {
+                bodyTimeout_ = std::chrono::duration_cast<std::chrono::milliseconds>(timeout);
+            }
+
+            std::chrono::milliseconds getHeaderTimeout() const
+            {
+                return headerTimeout_;
+            }
+
+            std::chrono::milliseconds getBodyTimeout() const
+            {
+                return bodyTimeout_;
+            }
+
+            static std::shared_ptr<RequestParser> getParser(const std::shared_ptr<Tcp::Peer>& peer);
+
+            ~Handler() override = default;
+
+        private:
+            void onConnection(const std::shared_ptr<Tcp::Peer>& peer) override;
+            void onInput(const char* buffer, size_t len,
+                         const std::shared_ptr<Tcp::Peer>& peer) override;
+
+        private:
+            size_t maxRequestSize_  = Const::DefaultMaxRequestSize;
+            size_t maxResponseSize_ = Const::DefaultMaxResponseSize;
+
+            std::chrono::milliseconds headerTimeout_ = Const::DefaultHeaderTimeout;
+            std::chrono::milliseconds bodyTimeout_   = Const::DefaultBodyTimeout;
+        };
+
+        template <typename H, typename... Args>
+        std::shared_ptr<H> make_handler(Args&&... args)
         {
-            allSteps[0].reset(new ResponseLineStep(&response));
-            allSteps[1].reset(new HeadersStep(&response));
-            allSteps[2].reset(new BodyStep(&response));
+            static_assert(std::is_base_of<Handler, H>::value,
+                          "An http handler must inherit from the Http::Handler class");
+            static_assert(details::IsHttpPrototype<H>::value,
+                          "An http handler must be an http prototype, did you forget the "
+                          "HTTP_PROTOTYPE macro ?");
+
+            return std::make_shared<H>(std::forward<Args>(args)...);
         }
 
-        Parser(const char* data, size_t len)
-            : ParserBase()
-            , response()
-        {
-            allSteps[0].reset(new ResponseLineStep(&response));
-            allSteps[1].reset(new HeadersStep(&response));
-            allSteps[2].reset(new BodyStep(&response));
-
-            feed(data, len);
-        }
-
-        Response response;
-    };
-
-} // namespace Private
-
-class Handler : public Tcp::Handler {
-public:
-    void onInput(const char* buffer, size_t len, const std::shared_ptr<Tcp::Peer>& peer);
-
-    void onConnection(const std::shared_ptr<Tcp::Peer>& peer);
-    void onDisconnection(const std::shared_ptr<Tcp::Peer>& peer);
-
-    virtual void onRequest(const Request& request, ResponseWriter response) = 0;
-
-    virtual void onTimeout(const Request& request, ResponseWriter response);
-
-    virtual ~Handler() { }
-
-private:
-    Private::Parser<Http::Request>& getParser(const std::shared_ptr<Tcp::Peer>& peer) const;
-};
-
-template<typename H, typename... Args>
-std::shared_ptr<H> make_handler(Args&& ...args) {
-    static_assert(std::is_base_of<Handler, H>::value, "An http handler must inherit from the Http::Handler class");
-    static_assert(details::IsHttpPrototype<H>::value, "An http handler must be an http prototype, did you forget the HTTP_PROTOTYPE macro ?");
-
-    return std::make_shared<H>(std::forward<Args>(args)...);
-}
-
-namespace helpers
-{
-    inline Address httpAddr(const StringView& view) {
-        auto const str = view.toString();
-        return Address(str);
-        }
-} // namespace helpers
-} // namespace Http
+    } // namespace Http
 } // namespace Pistache
