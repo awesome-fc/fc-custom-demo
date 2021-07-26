@@ -1,0 +1,23 @@
+edition: 1.0.0
+name: fc-custom-demo-cppEventFunc
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-custom-demo-cppEventFunc:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: cppEventFunc
+        handler: event.handler
+        timeout: 10
+        memorySize: 512
+        runtime: custom
+        codeUri: ./bin
+        initializationTimeout: 10
+        initializer: index.init

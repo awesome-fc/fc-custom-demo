@@ -1,0 +1,21 @@
+edition: 1.0.0
+name: fc-powershell-demo-fc-powershell
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-powershell-demo-fc-powershell:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: powershellEventFunc
+        handler: index.handler
+        Timeout: 30
+        memorySize: 512
+        runtime: custom
+        codeUri: ./code

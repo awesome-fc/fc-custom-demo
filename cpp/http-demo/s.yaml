@@ -1,0 +1,37 @@
+edition: 1.0.0
+name: fc-cpp_http_demo-fc_cpp_http
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-cpp_http_demo-fc_cpp_http:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: cppHttpFunc
+        handler: http.handler
+        memorySize: 512
+        runtime: custom
+        codeUri: ./bin
+      triggers:
+        - name: http_t
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+      customDomains:
+        - domainName: Auto
+          protocol: HTTP
+          routeConfigs:
+            - serviceName: custom-demo
+              functionName: cppHttpFunc
+              path: /*

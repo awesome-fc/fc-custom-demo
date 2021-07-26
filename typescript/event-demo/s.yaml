@@ -1,0 +1,20 @@
+edition: 1.0.0
+name: transform_fun
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-ts-demo-fc-ts:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: tsEventFunc
+        handler: index.handler
+        memorySize: 512
+        runtime: custom
+        codeUri: ./code

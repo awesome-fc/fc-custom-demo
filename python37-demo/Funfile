@@ -1,4 +1,0 @@
-RUNTIME custom
-RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install flask
-RUN fun-install pip -i https://pypi.tuna.tsinghua.edu.cn/simple install gunicorn
-

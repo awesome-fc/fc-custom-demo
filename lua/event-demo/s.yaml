@@ -1,0 +1,23 @@
+edition: 1.0.0
+name: transform_fun
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-lua-demo-fc-lua:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: luaEventFunc
+        handler: index.handler
+        memorySize: 1024
+        Timeout: 30
+        initializationTimeout: 20
+        initializer: index.init
+        runtime: custom
+        codeUri: ./code

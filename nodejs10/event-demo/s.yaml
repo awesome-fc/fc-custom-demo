@@ -1,0 +1,26 @@
+edition: 1.0.0
+name: fc-node12-demo-fc-node12
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-node12-demo-fc-node12:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: node10EventFunc
+        handler: index.handler
+        timeout: 30
+        initializationTimeout: 20
+        initializer: index.init
+        memorySize: 1024
+        runtime: custom
+        codeUri: ./code
+        instanceConcurrency: 4
+        environmentVariables:
+          PATH: /code/node-v12.13.0-linux-x64/bin:$PATH
