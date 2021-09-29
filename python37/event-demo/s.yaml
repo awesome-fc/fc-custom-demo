@@ -1,0 +1,24 @@
+edition: 1.0.0
+name: fc-python37-demo-fc-python37
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-python37-demo:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: pyEventFunc
+        handler: index.handler
+        timeout: 30
+        initializationTimeout: 20
+        initializer: index.init
+        memorySize: 1536
+        runtime: custom
+        codeUri: ./code
+        instanceConcurrency: 4

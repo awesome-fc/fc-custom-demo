@@ -1,0 +1,21 @@
+edition: 1.0.0
+name: fc-rust-demo-fc-rust
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-rust-demo-fc-rust:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: A demo service of how to use Rust in FC.
+        internetAccess: true
+      function:
+        name: rustEventFunc
+        handler: index.handler
+        timeout: 30
+        memorySize: 512
+        runtime: custom
+        codeUri: ./pkg

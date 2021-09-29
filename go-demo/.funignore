@@ -1,4 +1,0 @@
-build-image
-.env
-evt
-main.go

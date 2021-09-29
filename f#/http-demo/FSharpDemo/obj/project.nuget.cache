@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "syPGEOyyxWAxbG5Fw5aZlBjEoX87wzeydiodc11seRH7yOOQ26LqdVY6GV8esv+iusQtRw9WHFUcOMrUaku+7w==",
+  "success": true,
+  "projectFilePath": "/tmp/FSharpDemo/FSharpDemo.fsproj",
+  "expectedPackageFiles": [
+    "/root/.nuget/packages/fsharp.core/4.7.2/fsharp.core.4.7.2.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.netcore.app.runtime.linux-x64/3.1.11/microsoft.netcore.app.runtime.linux-x64.3.1.11.nupkg.sha512",
+    "/root/.nuget/packages/microsoft.aspnetcore.app.runtime.linux-x64/3.1.11/microsoft.aspnetcore.app.runtime.linux-x64.3.1.11.nupkg.sha512"
+  ],
+  "logs": []
+}

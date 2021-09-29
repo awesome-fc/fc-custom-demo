@@ -1,0 +1,23 @@
+edition: 1.0.0
+name: fc-dart-demo-dart-func
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-dart-demo-dart-func:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        internetAccess: true
+      function:
+        name: dartEventFunc
+        handler: index.handler
+        timeout: 60
+        initializationTimeout: 20
+        initializer: index.init
+        memorySize: 1024
+        runtime: custom
+        environmentVariables: {}
+        codeUri: ./code

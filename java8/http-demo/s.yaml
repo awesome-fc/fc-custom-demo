@@ -1,0 +1,38 @@
+edition: 1.0.0
+name: fc-springboot-helloworld
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-springboot-helloworld:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: This is a FC service for springboot
+        internetAccess: true
+      function:
+        name: springbootHttpFunc
+        handler: com.example.demo.DemoApplication::main
+        timeout: 15
+        memorySize: 1024
+        runtime: custom
+        codeUri: ./code
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+      customDomains:
+        - domainName: Auto
+          protocol: HTTP
+          routeConfigs:
+            - serviceName: custom-demo
+              functionName: springbootHttpFunc
+              path: /*

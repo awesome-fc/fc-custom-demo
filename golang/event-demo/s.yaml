@@ -1,0 +1,23 @@
+edition: 1.0.0
+name: fc-go_demo-fc_go
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  custom-demo:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: goEventFunc
+        handler: main.handler
+        timeout: 30
+        initializationTimeout: 20
+        initializer: index.initialize
+        memorySize: 512
+        runtime: custom
+        codeUri: ./code

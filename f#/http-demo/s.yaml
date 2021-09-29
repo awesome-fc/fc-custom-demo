@@ -1,0 +1,37 @@
+edition: 1.0.0
+name: fc-fsharp_demo-fc_fsharp
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-fsharp_demo-fc_fsharp:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: fsharpHttpFunc
+        handler: Program.main
+        memorySize: 1024
+        runtime: custom
+        codeUri: ./FSharpDemo/bin/Release/netcoreapp3.1/linux-x64/publish
+      triggers:
+        - name: http_t
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+      customDomains:
+        - domainName: Auto
+          protocol: HTTP
+          routeConfigs:
+            - serviceName: custom-demo
+              functionName: fsharpHttpFunc
+              path: /*

@@ -1,0 +1,24 @@
+edition: 1.0.0
+name: fc-php74-demo-fc-php74-swoole
+access: default
+vars:
+  region: cn-hangzhou
+services:
+  fc-php74-demo-fc-php74-swoole:
+    component: devsapp/fc
+    props:
+      region: ${vars.region}
+      service:
+        name: custom-demo
+        description: helloworld
+        internetAccess: true
+      function:
+        name: php74EventFunc
+        handler: server.handler
+        timeout: 30
+        initializationTimeout: 20
+        initializer: index.init
+        memorySize: 1024
+        runtime: custom
+        codeUri: ./code
+        instanceConcurrency: 4
